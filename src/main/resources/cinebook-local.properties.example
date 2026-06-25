@@ -1,0 +1,5 @@
+# Copy this file to cinebook-local.properties for local development.
+# The real file is ignored by Git and must never be committed.
+url=jdbc:sqlserver://localhost:1433;databaseName=CineBook;encrypt=true;trustServerCertificate=true
+user=cinebook_app
+password=replace-with-your-local-password
