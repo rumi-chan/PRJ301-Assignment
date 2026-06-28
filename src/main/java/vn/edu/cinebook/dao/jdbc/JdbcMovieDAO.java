@@ -17,16 +17,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class JdbcMovieDAO implements MovieDAO {
-    private static final String SELECT = """
-            SELECT m.movie_id AS id, m.title, m.slug, m.synopsis, m.director, m.cast_text,
-                   m.duration_minutes, m.age_rating, m.release_date, m.poster_url,
-                   m.backdrop_url, m.trailer_url, m.status,
-                   (SELECT STRING_AGG(g.name, ',') FROM movie_genres mg
-                    JOIN genres g ON g.genre_id = mg.genre_id WHERE mg.movie_id = m.movie_id) AS genres,
-                   (SELECT STRING_AGG(mf.format, ',') FROM movie_formats mf
-                    WHERE mf.movie_id = m.movie_id) AS formats
-            FROM movies m
-            """;
+    private static final String SELECT = "SELECT m.movie_id AS id, m.title, m.slug, m.synopsis, m.director, m.cast_text, "
+            + "m.duration_minutes, m.age_rating, m.release_date, m.poster_url, m.backdrop_url, m.trailer_url, m.status, "
+            + "(SELECT STRING_AGG(g.name, ',') FROM movie_genres mg JOIN genres g ON g.genre_id = mg.genre_id WHERE mg.movie_id = m.movie_id) AS genres, "
+            + "(SELECT STRING_AGG(mf.format, ',') FROM movie_formats mf WHERE mf.movie_id = m.movie_id) AS formats FROM movies m";
 
     @Override
     public List<Movie> search(MovieStatus status, String query, String genre, MovieFormat format) {
@@ -41,11 +35,7 @@ public class JdbcMovieDAO implements MovieDAO {
             parameters.add("%" + query.trim().toLowerCase() + "%");
         }
         if (genre != null && !genre.isBlank()) {
-            sql.append("""
-                     AND EXISTS (SELECT 1 FROM movie_genres xmg
-                     JOIN genres xg ON xg.genre_id = xmg.genre_id
-                     WHERE xmg.movie_id = m.movie_id AND LOWER(xg.name) = ?)
-                    """);
+            sql.append(" AND EXISTS (SELECT 1 FROM movie_genres xmg JOIN genres xg ON xg.genre_id = xmg.genre_id WHERE xmg.movie_id = m.movie_id AND LOWER(xg.name) = ?)");
             parameters.add(genre.trim().toLowerCase());
         }
         if (format != null) {

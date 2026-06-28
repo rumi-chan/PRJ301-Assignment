@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import vn.edu.cinebook.model.User;
 import vn.edu.cinebook.service.ServiceRegistry;
 import vn.edu.cinebook.util.AppException;
@@ -25,7 +26,14 @@ public class ProfileScaffoldServlet extends HttpServlet {
         }
         User user = (User) request.getSession().getAttribute("currentUser");
         if ("watchlist".equals(section) && user != null) {
-            request.setAttribute("movies", ServiceRegistry.WATCHLIST.findMoviesByUserId(user.getId()));
+            request.setAttribute("movies", ServiceRegistry.WATCHLIST.findMoviesByUserId(user.getId()));  
+        // ĐOẠN CODE NẠP LỊCH SỬ ĐÁNH GIÁ CÁ NHÂN ĐÃ ĐƯỢC THÊM SẴN Ở ĐÂY:
+        if ("reviews".equals(section)) {
+            HttpSession session = request.getSession(false);
+            User currentUser = session == null ? null : (User) session.getAttribute("currentUser");
+            if (currentUser != null) {
+                request.setAttribute("reviews", ServiceRegistry.REVIEW.getUserReviews(currentUser.id()));
+            }
         }
         request.setAttribute("profileSection", section);
         WebUtil.view(request, response, "profile/" + section);

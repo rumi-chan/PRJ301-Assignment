@@ -6,6 +6,8 @@ import vn.edu.cinebook.util.AppException;
 import vn.edu.cinebook.util.PasswordUtil;
 import vn.edu.cinebook.util.Validation;
 
+import java.util.List;
+
 public class AuthService {
     private final UserDAO userDAO;
 
@@ -13,11 +15,24 @@ public class AuthService {
         this.userDAO = userDAO;
     }
 
+    public List<User> searchUsers(String query) {
+        return userDAO.findAll(query);
+    }
+
+    public void toggleLockStatus(long userId, boolean lock) {
+        User user = userDAO.findById(userId)
+                .orElseThrow(() -> new AppException(404, "User account not found."));
+        if (user.isAdmin()) {
+            throw new AppException(403, "Administrator accounts cannot be locked.");
+        }
+        userDAO.updateLockStatus(userId, lock);
+    }
+
     public User login(String email, String password) {
         String normalizedEmail = Validation.email(email);
         User user = userDAO.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new AppException(401, "Email or password is incorrect."));
-        if (!user.active()) {
+        if (!user.active() || user.isLocked()) {
             throw new AppException(403, "This account is locked. Contact an administrator.");
         }
         if (!PasswordUtil.matches(password, user.passwordHash())) {

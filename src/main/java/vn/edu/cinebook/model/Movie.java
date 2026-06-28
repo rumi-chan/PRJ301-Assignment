@@ -35,6 +35,12 @@ public record Movie(
     public String getTrailerUrl() { return trailerUrl; }
     public MovieStatus getStatus() { return status; }
     public List<String> getGenres() { return genres; }
+    public String getGenreNames() { return genres == null ? "" : String.join(", ", genres); }
+    public String genreNames() { return getGenreNames(); }
+    public String getCastNames() { return cast == null ? "" : cast; }
+    public String castNames() { return getCastNames(); }
+    public String getLanguage() { return "Vietnamese / English"; }
+    public String language() { return getLanguage(); }
     public List<MovieFormat> getFormats() { return formats; }
     public String getGenreNames() { return genres != null ? String.join(", ", genres) : ""; }
     public String getCastNames() { return cast != null ? cast : ""; }

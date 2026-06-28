@@ -24,6 +24,7 @@ public class MovieServlet extends HttpServlet {
             if (user != null) {
                 request.setAttribute("inWatchlist", ServiceRegistry.WATCHLIST.exists(user.getId(), id));
             }
+            request.setAttribute("reviews", ServiceRegistry.REVIEW.getMovieReviews(id));
             WebUtil.view(request, response, "movies/detail");
             return;
         }

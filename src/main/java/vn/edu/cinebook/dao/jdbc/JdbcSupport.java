@@ -13,6 +13,8 @@ final class JdbcSupport {
 
     static AppException databaseError(SQLException exception) {
         return new AppException(500, "Database error: " + exception.getMessage(), exception);
+        exception.printStackTrace();
+        return new AppException(500, "Lỗi CSDL: " + exception.getMessage(), exception);
     }
 
     static List<String> csv(String value) {
