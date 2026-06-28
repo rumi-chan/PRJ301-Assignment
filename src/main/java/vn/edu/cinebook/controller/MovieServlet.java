@@ -20,6 +20,7 @@ public class MovieServlet extends HttpServlet {
         if (path != null && path.length() > 1) {
             long id = Validation.positiveLong(path.substring(1), "Movie");
             request.setAttribute("movie", ServiceRegistry.CATALOG.movie(id));
+            request.setAttribute("reviews", ServiceRegistry.REVIEW.getMovieReviews(id));
             WebUtil.view(request, response, "movies/detail");
             return;
         }
