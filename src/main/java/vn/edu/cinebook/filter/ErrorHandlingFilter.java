@@ -27,14 +27,25 @@ public class ErrorHandlingFilter implements Filter {
         } catch (AppException exception) {
             handle((HttpServletRequest) request, (HttpServletResponse) response,
                     exception.getStatusCode(), exception.getMessage(), exception);
-        } catch (RuntimeException exception) {
+        } catch (Throwable exception) {
+            Throwable root = exception;
+            while (root.getCause() != null && root.getCause() != root) {
+                root = root.getCause();
+            }
+            String detail = root.getMessage() != null ? root.getMessage() : root.toString();
             handle((HttpServletRequest) request, (HttpServletResponse) response,
-                    500, "An unexpected error occurred.", exception);
+                    500, "An unexpected error occurred.", exception instanceof Exception ? (Exception) exception : new Exception(exception), detail);
         }
     }
 
     private void handle(HttpServletRequest request, HttpServletResponse response,
                         int status, String message, Exception exception)
+            throws IOException, ServletException {
+        handle(request, response, status, message, exception, exception != null ? exception.toString() : "");
+    }
+
+    private void handle(HttpServletRequest request, HttpServletResponse response,
+                        int status, String message, Exception exception, String detail)
             throws IOException, ServletException {
         LOGGER.log(Level.SEVERE,
                 "Request failed: " + request.getMethod() + " " + request.getRequestURI(),
@@ -47,11 +58,12 @@ public class ErrorHandlingFilter implements Filter {
         if (request.getRequestURI().contains("/api/")) {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            mapper.writeValue(response.getWriter(), Map.of("error", message, "status", status));
+            mapper.writeValue(response.getWriter(), Map.of("error", message, "status", status, "detail", detail != null ? detail : ""));
             return;
         }
         request.setAttribute("errorStatus", status);
         request.setAttribute("errorMessage", message);
+        request.setAttribute("errorDetail", detail);
         String page = status == 404 ? "404" : status == 403 ? "403" : "500";
         request.getRequestDispatcher("/WEB-INF/views/errors/" + page + ".jsp").forward(request, response);
     }

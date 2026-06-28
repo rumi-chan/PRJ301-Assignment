@@ -7,9 +7,11 @@ import vn.edu.cinebook.model.MovieStatus;
 import vn.edu.cinebook.util.Database;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -94,6 +96,145 @@ public class JdbcMovieDAO implements MovieDAO {
             return genres;
         } catch (SQLException exception) {
             throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    @Override
+    public List<Movie> findAllForAdmin() {
+        String sql = SELECT + " ORDER BY m.release_date DESC, m.title";
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet result = statement.executeQuery()) {
+            List<Movie> movies = new ArrayList<>();
+            while (result.next()) {
+                movies.add(map(result));
+            }
+            return movies;
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    @Override
+    public void insert(Movie movie) {
+        String sql = """
+                INSERT INTO movies (title, slug, synopsis, director, cast_text, duration_minutes,
+                                    age_rating, release_date, end_date, original_language, country,
+                                    poster_url, backdrop_url, trailer_url, status, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 'English', 'USA', ?, ?, ?, ?, 1)
+                """;
+        try (Connection connection = Database.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                long movieId;
+                try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                    bindMovie(statement, movie);
+                    statement.executeUpdate();
+                    try (ResultSet keys = statement.getGeneratedKeys()) {
+                        if (keys.next()) {
+                            movieId = keys.getLong(1);
+                        } else {
+                            throw new SQLException("Failed to retrieve generated movie ID.");
+                        }
+                    }
+                }
+                saveRelations(connection, movieId, movie);
+                connection.commit();
+            } catch (Exception e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    @Override
+    public void update(Movie movie) {
+        String sql = """
+                UPDATE movies
+                   SET title = ?, slug = ?, synopsis = ?, director = ?, cast_text = ?,
+                       duration_minutes = ?, age_rating = ?, release_date = ?,
+                       poster_url = ?, backdrop_url = ?, trailer_url = ?, status = ?, updated_at = SYSUTCDATETIME()
+                 WHERE movie_id = ?
+                """;
+        try (Connection connection = Database.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                    bindMovie(statement, movie);
+                    statement.setLong(13, movie.id());
+                    statement.executeUpdate();
+                }
+                try (PreparedStatement delGenres = connection.prepareStatement("DELETE FROM movie_genres WHERE movie_id = ?");
+                     PreparedStatement delFormats = connection.prepareStatement("DELETE FROM movie_formats WHERE movie_id = ?")) {
+                    delGenres.setLong(1, movie.id());
+                    delGenres.executeUpdate();
+                    delFormats.setLong(1, movie.id());
+                    delFormats.executeUpdate();
+                }
+                saveRelations(connection, movie.id(), movie);
+                connection.commit();
+            } catch (Exception e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    @Override
+    public void delete(long id) {
+        String sql = "UPDATE movies SET is_active = 0, updated_at = SYSUTCDATETIME() WHERE movie_id = ?";
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    private void bindMovie(PreparedStatement statement, Movie movie) throws SQLException {
+        statement.setString(1, movie.title());
+        statement.setString(2, movie.slug());
+        statement.setString(3, movie.synopsis());
+        statement.setString(4, movie.director());
+        statement.setString(5, movie.cast());
+        statement.setInt(6, movie.durationMinutes());
+        statement.setString(7, movie.ageRating());
+        statement.setDate(8, Date.valueOf(movie.releaseDate()));
+        statement.setString(9, movie.posterUrl());
+        statement.setString(10, movie.backdropUrl());
+        statement.setString(11, movie.trailerUrl());
+        statement.setString(12, movie.status().name());
+    }
+
+    private void saveRelations(Connection connection, long movieId, Movie movie) throws SQLException {
+        if (movie.genres() != null && !movie.genres().isEmpty()) {
+            String sql = "INSERT INTO movie_genres (movie_id, genre_id) SELECT ?, genre_id FROM genres WHERE name = ?";
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                for (String genre : movie.genres()) {
+                    stmt.setLong(1, movieId);
+                    stmt.setString(2, genre.trim());
+                    stmt.executeUpdate();
+                }
+            }
+        }
+        if (movie.formats() != null && !movie.formats().isEmpty()) {
+            String sql = "INSERT INTO movie_formats (movie_id, format) VALUES (?, ?)";
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                for (MovieFormat format : movie.formats()) {
+                    stmt.setLong(1, movieId);
+                    stmt.setString(2, format.getLabel());
+                    stmt.executeUpdate();
+                }
+            }
         }
     }
 

@@ -51,4 +51,16 @@ public final class Validation {
             throw new AppException(400, field + " is invalid.");
         }
     }
+
+    public static int positiveInt(String value, String field) {
+        try {
+            int parsed = Integer.parseInt(value);
+            if (parsed <= 0) {
+                throw new NumberFormatException();
+            }
+            return parsed;
+        } catch (NumberFormatException exception) {
+            throw new AppException(400, field + " is invalid.");
+        }
+    }
 }

@@ -38,6 +38,16 @@ BEGIN TRY
              N'Minh Nguyen', N'+84 90 100 2001', 'ADMIN', 1, 0, 1);
     END;
 
+    IF NOT EXISTS (SELECT 1 FROM dbo.users WHERE email = N'admin@gmail.com')
+    BEGIN
+        INSERT dbo.users
+            (email, password_hash, full_name, phone, role, is_active, is_locked, email_verified)
+        VALUES
+            (N'admin@gmail.com',
+             N'$2a$12$c1Ge/lbFwhwBHWP4JDVhH.7kNRaHCKRkIJ6xDKj9dtO4pzQStjEvK',
+             N'Test Admin', N'+84 90 999 8888', 'ADMIN', 1, 0, 1);
+    END;
+
     IF NOT EXISTS (SELECT 1 FROM dbo.users WHERE email = N'customer@cinebook.vn')
     BEGIN
         INSERT dbo.users
@@ -46,6 +56,16 @@ BEGIN TRY
             (N'customer@cinebook.vn',
              N'$2a$12$c1Ge/lbFwhwBHWP4JDVhH.7kNRaHCKRkIJ6xDKj9dtO4pzQStjEvK',
              N'Lan Tran', N'+84 91 234 5678', 'CUSTOMER', 1, 0, 1);
+    END;
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.users WHERE email = N'user@gmail.com')
+    BEGIN
+        INSERT dbo.users
+            (email, password_hash, full_name, phone, role, is_active, is_locked, email_verified)
+        VALUES
+            (N'user@gmail.com',
+             N'$2a$12$c1Ge/lbFwhwBHWP4JDVhH.7kNRaHCKRkIJ6xDKj9dtO4pzQStjEvK',
+             N'Test User', N'+84 91 111 2222', 'CUSTOMER', 1, 0, 1);
     END;
 
     IF NOT EXISTS (SELECT 1 FROM dbo.users WHERE email = N'reviewer@cinebook.vn')

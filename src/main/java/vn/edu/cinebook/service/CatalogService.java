@@ -36,6 +36,22 @@ public class CatalogService {
         return movieDAO.listGenres();
     }
 
+    public List<Movie> allMoviesAdmin() {
+        return movieDAO.findAllForAdmin();
+    }
+
+    public void insertMovie(Movie movie) {
+        movieDAO.insert(movie);
+    }
+
+    public void updateMovie(Movie movie) {
+        movieDAO.update(movie);
+    }
+
+    public void deleteMovie(long id) {
+        movieDAO.delete(id);
+    }
+
     public List<Cinema> searchCinemas(String city, String query) {
         return cinemaDAO.search(city, query);
     }

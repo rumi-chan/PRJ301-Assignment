@@ -84,6 +84,169 @@
         <url-pattern>/admin/*</url-pattern>
     </filter-mapping>
 
+    <!-- Servlets Configuration -->
+    <servlet>
+        <servlet-name>AdminBannerServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.AdminBannerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminBannerServlet</servlet-name>
+        <url-pattern>/admin/banners</url-pattern>
+        <url-pattern>/admin/banners/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminMovieServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.AdminMovieServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminMovieServlet</servlet-name>
+        <url-pattern>/admin/movies</url-pattern>
+        <url-pattern>/admin/movies/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/admin</url-pattern>
+        <url-pattern>/admin/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>BookingHistoryServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.BookingHistoryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BookingHistoryServlet</servlet-name>
+        <url-pattern>/profile/bookings</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.CheckoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <url-pattern>/checkout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CinemaServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.CinemaServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CinemaServlet</servlet-name>
+        <url-pattern>/cinemas</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ComboServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.ComboServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ComboServlet</servlet-name>
+        <url-pattern>/booking/combos</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+        <url-pattern>/auth/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+        <url-pattern>/auth/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>MovieServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.MovieServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MovieServlet</servlet-name>
+        <url-pattern>/movies</url-pattern>
+        <url-pattern>/movies/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>PaymentServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.PaymentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PaymentServlet</servlet-name>
+        <url-pattern>/payments/simulate</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ProfileScaffoldServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.ProfileScaffoldServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ProfileScaffoldServlet</servlet-name>
+        <url-pattern>/profile/watchlist</url-pattern>
+        <url-pattern>/profile/reviews</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RegisterServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.RegisterServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RegisterServlet</servlet-name>
+        <url-pattern>/register</url-pattern>
+        <url-pattern>/auth/register</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SeatHoldApiServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.SeatHoldApiServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SeatHoldApiServlet</servlet-name>
+        <url-pattern>/api/seat-holds</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SeatServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.SeatServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SeatServlet</servlet-name>
+        <url-pattern>/booking/seats</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ShowtimeServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.ShowtimeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ShowtimeServlet</servlet-name>
+        <url-pattern>/booking/showtimes</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>TicketServlet</servlet-name>
+        <servlet-class>vn.edu.cinebook.controller.TicketServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TicketServlet</servlet-name>
+        <url-pattern>/tickets</url-pattern>
+        <url-pattern>/tickets/*</url-pattern>
+    </servlet-mapping>
+
     <session-config>
         <session-timeout>30</session-timeout>
         <cookie-config>

@@ -17,7 +17,15 @@ public final class WebUtil {
 
     public static void redirect(HttpServletRequest request, HttpServletResponse response, String path)
             throws IOException {
-        response.sendRedirect(request.getContextPath() + path);
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            response.sendRedirect(path);
+        } else if (path.startsWith(request.getContextPath() + "/") || path.equals(request.getContextPath())) {
+            response.sendRedirect(path);
+        } else if (path.startsWith("/")) {
+            response.sendRedirect(request.getContextPath() + path);
+        } else {
+            response.sendRedirect(path);
+        }
     }
 
     public static void flash(HttpServletRequest request, String type, String message) {

@@ -5,19 +5,43 @@
     <jsp:param name="active" value="movies"/>
 </jsp:include>
 <section class="relative overflow-hidden border-b border-white/5">
-    <div class="absolute inset-0 bg-gradient-to-r from-rose-950/35 via-transparent to-amber-950/20"></div>
-    <div class="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-        <p class="text-sm font-black uppercase tracking-[.3em] text-rose-500">Now playing near you</p>
-        <h1 class="mt-3 max-w-3xl text-4xl font-black tracking-tight sm:text-6xl">Big screen stories.<br><span class="text-zinc-500">Your favorite seat.</span></h1>
-        <form action="<c:url value='/movies'/>" method="get" class="glass-panel mt-9 flex max-w-2xl flex-col gap-3 rounded-2xl p-3 sm:flex-row">
-            <label class="relative flex-1">
-                <span class="sr-only">Search movies</span>
-                <svg viewBox="0 0 24 24" class="absolute left-3 top-3.5 h-5 w-5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-                <input name="q" value="<c:out value='${not empty filters.query ? filters.query : param.q}'/>" placeholder="Search by movie title…" class="w-full rounded-xl border border-white/10 bg-black/25 py-3 pl-11 pr-4 outline-none focus:border-rose-500">
-            </label>
-            <button class="rounded-xl bg-rose-600 px-6 py-3 font-black hover:bg-rose-500">Find a movie</button>
-        </form>
-    </div>
+    <c:choose>
+        <c:when test="${not empty banners}">
+            <c:forEach var="heroBanner" items="${banners}" begin="0" end="0">
+            <img src="<c:out value='${heroBanner.imageUrl}'/>" alt="" class="absolute inset-0 h-full w-full object-cover opacity-30">
+            <div class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent"></div>
+            <div class="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+                <p class="text-sm font-black uppercase tracking-[.3em] text-rose-500">Featured Promotion</p>
+                <h1 class="mt-3 max-w-3xl text-4xl font-black tracking-tight sm:text-6xl"><c:out value="${heroBanner.title}"/></h1>
+                <c:if test="${not empty heroBanner.subtitle}"><p class="mt-4 max-w-xl text-lg text-zinc-300"><c:out value="${heroBanner.subtitle}"/></p></c:if>
+                <c:if test="${not empty heroBanner.targetUrl}"><a href="<c:out value='${heroBanner.targetUrl}'/>" class="mt-6 inline-block rounded-xl bg-rose-600 px-6 py-3 font-black text-white hover:bg-rose-500">Explore now</a></c:if>
+                <form action="<c:url value='/movies'/>" method="get" class="glass-panel mt-9 flex max-w-2xl flex-col gap-3 rounded-2xl p-3 sm:flex-row">
+                    <label class="relative flex-1">
+                        <span class="sr-only">Search movies</span>
+                        <svg viewBox="0 0 24 24" class="absolute left-3 top-3.5 h-5 w-5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                        <input name="q" value="<c:out value='${not empty filters.query ? filters.query : param.q}'/>" placeholder="Search by movie title…" class="w-full rounded-xl border border-white/10 bg-black/25 py-3 pl-11 pr-4 outline-none focus:border-rose-500">
+                    </label>
+                    <button class="rounded-xl bg-rose-600 px-6 py-3 font-black hover:bg-rose-500">Find a movie</button>
+                </form>
+            </div>
+            </c:forEach>
+        </c:when>
+        <c:otherwise>
+            <div class="absolute inset-0 bg-gradient-to-r from-rose-950/35 via-transparent to-amber-950/20"></div>
+            <div class="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+                <p class="text-sm font-black uppercase tracking-[.3em] text-rose-500">Now playing near you</p>
+                <h1 class="mt-3 max-w-3xl text-4xl font-black tracking-tight sm:text-6xl">Big screen stories.<br><span class="text-zinc-500">Your favorite seat.</span></h1>
+                <form action="<c:url value='/movies'/>" method="get" class="glass-panel mt-9 flex max-w-2xl flex-col gap-3 rounded-2xl p-3 sm:flex-row">
+                    <label class="relative flex-1">
+                        <span class="sr-only">Search movies</span>
+                        <svg viewBox="0 0 24 24" class="absolute left-3 top-3.5 h-5 w-5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                        <input name="q" value="<c:out value='${not empty filters.query ? filters.query : param.q}'/>" placeholder="Search by movie title…" class="w-full rounded-xl border border-white/10 bg-black/25 py-3 pl-11 pr-4 outline-none focus:border-rose-500">
+                    </label>
+                    <button class="rounded-xl bg-rose-600 px-6 py-3 font-black hover:bg-rose-500">Find a movie</button>
+                </form>
+            </div>
+        </c:otherwise>
+    </c:choose>
 </section>
 
 <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -54,6 +78,7 @@
         <c:when test="${not empty movies}">
             <div class="grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 <c:forEach var="movie" items="${movies}">
+                    <c:set var="movie" value="${movie}" scope="request"/>
                     <jsp:include page="/WEB-INF/views/shared/movie-card.jsp"/>
                 </c:forEach>
             </div>

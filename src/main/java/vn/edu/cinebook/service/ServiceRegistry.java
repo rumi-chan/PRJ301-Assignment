@@ -14,6 +14,10 @@ import vn.edu.cinebook.dao.jdbc.JdbcMovieDAO;
 import vn.edu.cinebook.dao.jdbc.JdbcPromotionDAO;
 import vn.edu.cinebook.dao.jdbc.JdbcShowtimeDAO;
 import vn.edu.cinebook.dao.jdbc.JdbcUserDAO;
+import vn.edu.cinebook.dao.WatchlistDAO;
+import vn.edu.cinebook.dao.jdbc.JdbcWatchlistDAO;
+import vn.edu.cinebook.dao.BannerDAO;
+import vn.edu.cinebook.dao.jdbc.JdbcBannerDAO;
 
 public final class ServiceRegistry {
     private static final UserDAO USERS = new JdbcUserDAO();
@@ -29,6 +33,8 @@ public final class ServiceRegistry {
     public static final CatalogService CATALOG = new CatalogService(MOVIES, CINEMAS, SHOWTIMES);
     public static final BookingService BOOKING =
             new BookingService(BOOKINGS, COMBOS, PROMOTIONS, PRICING);
+    public static final WatchlistDAO WATCHLIST = new JdbcWatchlistDAO();
+    public static final BannerDAO BANNERS = new JdbcBannerDAO();
 
     private ServiceRegistry() {
     }

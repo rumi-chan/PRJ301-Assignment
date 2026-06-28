@@ -6,6 +6,13 @@
         <p class="bg-gradient-to-r from-rose-500 to-amber-300 bg-clip-text text-8xl font-black leading-none text-transparent sm:text-9xl"><c:out value="${param.code}"/></p>
         <h1 class="mt-6 text-3xl font-black sm:text-5xl"><c:out value="${param.heading}"/></h1>
         <p class="mx-auto mt-4 max-w-xl text-lg leading-8 text-zinc-500"><c:out value="${not empty requestScope.errorMessage ? requestScope.errorMessage : param.message}"/></p>
+        <c:if test="${not empty requestScope.errorDetail || not empty requestScope['jakarta.servlet.error.message'] || not empty requestScope['jakarta.servlet.error.exception']}">
+            <div class="mx-auto mt-6 max-w-2xl rounded-xl border border-rose-500/30 bg-rose-950/20 p-4 text-left font-mono text-xs text-rose-300 overflow-auto max-h-48">
+                <p class="font-bold text-rose-400">Chi tiết lỗi kỹ thuật (Debug):</p>
+                <p class="mt-1"><c:out value="${not empty requestScope.errorDetail ? requestScope.errorDetail : requestScope['jakarta.servlet.error.message']}"/></p>
+                <c:if test="${not empty requestScope['jakarta.servlet.error.exception']}"><p class="mt-1 text-zinc-400"><c:out value="${requestScope['jakarta.servlet.error.exception']}"/></p></c:if>
+            </div>
+        </c:if>
         <c:if test="${not empty requestScopeId}"><p class="mt-4 font-mono text-xs text-zinc-700">Reference: <c:out value="${requestScopeId}"/></p></c:if>
         <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
             <a href="<c:url value='/movies'/>" class="rounded-xl bg-rose-600 px-6 py-3 font-black hover:bg-rose-500">Browse movies</a>

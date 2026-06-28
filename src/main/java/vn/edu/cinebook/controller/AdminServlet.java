@@ -1,7 +1,6 @@
 package vn.edu.cinebook.controller;
 
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,7 +10,6 @@ import vn.edu.cinebook.util.WebUtil;
 import java.io.IOException;
 import java.util.Map;
 
-@WebServlet({"/admin", "/admin/*"})
 public class AdminServlet extends HttpServlet {
     private static final Map<String, String> SECTIONS = Map.ofEntries(
             Map.entry("dashboard", "Dashboard"),

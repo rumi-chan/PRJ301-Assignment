@@ -22,6 +22,8 @@ public final class Database {
         }
     }
 
+    private static volatile boolean seeded = false;
+
     private Database() {
     }
 
@@ -29,17 +31,75 @@ public final class Database {
         String url = setting("cinebook.db.url", "CINEBOOK_DB_URL", "url", DEFAULT_URL);
         String user = setting("cinebook.db.user", "CINEBOOK_DB_USER", "user", null);
         String password = setting("cinebook.db.password", "CINEBOOK_DB_PASSWORD", "password", null);
-        Connection connection;
-        if (user == null && url.toLowerCase().contains("integratedsecurity=true")) {
-            connection = DriverManager.getConnection(url);
-        } else if (user == null || password == null) {
-            throw new SQLException(
-                    "Set CINEBOOK_DB_USER and CINEBOOK_DB_PASSWORD, or configure integratedSecurity=true.");
-        } else {
-            connection = DriverManager.getConnection(url, user, password);
+        Connection connection = null;
+        try {
+            if (user == null && url.toLowerCase().contains("integratedsecurity=true")) {
+                connection = DriverManager.getConnection(url);
+            } else if (user == null || password == null) {
+                throw new SQLException(
+                        "Set CINEBOOK_DB_USER and CINEBOOK_DB_PASSWORD, or configure integratedSecurity=true.");
+            } else {
+                connection = DriverManager.getConnection(url, user, password);
+            }
+        } catch (SQLException exception) {
+            if (exception.getErrorCode() == 4060 || (exception.getMessage() != null && exception.getMessage().contains("Cannot open database"))) {
+                createDatabaseIfMissing(url, user, password);
+                if (user == null && url.toLowerCase().contains("integratedsecurity=true")) {
+                    connection = DriverManager.getConnection(url);
+                } else {
+                    connection = DriverManager.getConnection(url, user, password);
+                }
+            } else {
+                throw exception;
+            }
         }
         configureSqlServerSession(connection);
+        ensureSeeded(connection);
         return connection;
+    }
+
+    private static synchronized void createDatabaseIfMissing(String url, String user, String password) throws SQLException {
+        String dbName = "CineBook";
+        int dbIdx = url.toLowerCase().indexOf("databasename=");
+        if (dbIdx != -1) {
+            int endIdx = url.indexOf(';', dbIdx);
+            dbName = endIdx != -1 ? url.substring(dbIdx + 13, endIdx) : url.substring(dbIdx + 13);
+        }
+        String masterUrl = url.replaceAll("(?i);?databaseName=[^;]+", "");
+        try (Connection masterConn = user == null ? DriverManager.getConnection(masterUrl) : DriverManager.getConnection(masterUrl, user, password);
+             Statement stmt = masterConn.createStatement()) {
+            stmt.executeUpdate("IF DB_ID('" + dbName + "') IS NULL CREATE DATABASE " + dbName);
+        }
+    }
+
+    private static synchronized void ensureSeeded(Connection conn) {
+        if (seeded) return;
+        seeded = true;
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeQuery("SELECT 1 FROM banners");
+        } catch (SQLException exception) {
+            try {
+                runScript(conn, "/db/schema.sql");
+                runScript(conn, "/db/seed.sql");
+            } catch (Exception ex) {
+                System.err.println("Warning: Auto init database failed: " + ex.getMessage());
+            }
+        }
+    }
+
+    private static void runScript(Connection conn, String path) throws Exception {
+        try (InputStream input = Database.class.getResourceAsStream(path)) {
+            if (input == null) return;
+            String content = new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            String[] chunks = content.split("(?im)^\\s*GO\\s*$");
+            try (Statement stmt = conn.createStatement()) {
+                for (String chunk : chunks) {
+                    if (!chunk.trim().isEmpty()) {
+                        stmt.execute(chunk.trim());
+                    }
+                }
+            }
+        }
     }
 
     private static String setting(String property, String environment,

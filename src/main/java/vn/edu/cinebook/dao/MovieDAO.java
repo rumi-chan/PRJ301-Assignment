@@ -13,4 +13,12 @@ public interface MovieDAO {
     Optional<Movie> findById(long id);
 
     List<String> listGenres();
+
+    List<Movie> findAllForAdmin();
+
+    void insert(Movie movie);
+
+    void update(Movie movie);
+
+    void delete(long id);
 }

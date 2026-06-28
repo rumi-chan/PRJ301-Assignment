@@ -36,4 +36,7 @@ public record Movie(
     public MovieStatus getStatus() { return status; }
     public List<String> getGenres() { return genres; }
     public List<MovieFormat> getFormats() { return formats; }
+    public String getGenreNames() { return genres != null ? String.join(", ", genres) : ""; }
+    public String getCastNames() { return cast != null ? cast : ""; }
+    public String getLanguage() { return "Original language"; }
 }
