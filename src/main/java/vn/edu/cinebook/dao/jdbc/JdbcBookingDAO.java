@@ -220,29 +220,27 @@ public class JdbcBookingDAO implements BookingDAO {
     }
 
     private List<Seat> findSeats(Connection connection, long showtimeId, String holdToken) throws SQLException {
-        String sql = """
-                SELECT st.seat_id AS id, st.auditorium_id, st.row_label, st.seat_number,
-                       st.seat_label AS label,
-                       st.seat_type, st.pair_seat_id, COALESCE(sp.price, sh.base_price) AS price,
-                       CASE
-                           WHEN EXISTS (
-                               SELECT 1 FROM booking_seats bs
-                               WHERE bs.seat_id = st.seat_id AND bs.showtime_id = sh.showtime_id
-                               AND bs.status = 'BOOKED') THEN 'SOLD'
-                           WHEN EXISTS (
-                               SELECT 1 FROM seat_holds h WHERE h.seat_id = st.seat_id
-                               AND h.showtime_id = sh.showtime_id AND h.status = 'ACTIVE'
-                               AND h.expires_at > SYSUTCDATETIME()
-                               AND (? IS NULL OR h.hold_token <> ?)) THEN 'HELD'
-                           WHEN st.is_active = 0 THEN 'UNAVAILABLE'
-                           ELSE 'AVAILABLE'
-                       END AS availability
-                FROM showtimes sh
-                JOIN seats st ON st.auditorium_id = sh.auditorium_id
-                LEFT JOIN seat_prices sp ON sp.showtime_id = sh.showtime_id AND sp.seat_type = st.seat_type
-                WHERE sh.showtime_id = ?
-                ORDER BY st.row_label, st.seat_number
-                """;
+        String sql = "SELECT st.seat_id AS id, st.auditorium_id, st.row_label, st.seat_number, " +
+                "st.seat_label AS label, " +
+                "st.seat_type, st.pair_seat_id, COALESCE(sp.price, sh.base_price) AS price, " +
+                "CASE " +
+                "    WHEN EXISTS ( " +
+                "        SELECT 1 FROM booking_seats bs " +
+                "        WHERE bs.seat_id = st.seat_id AND bs.showtime_id = sh.showtime_id " +
+                "        AND bs.status = 'BOOKED') THEN 'SOLD' " +
+                "    WHEN EXISTS ( " +
+                "        SELECT 1 FROM seat_holds h WHERE h.seat_id = st.seat_id " +
+                "        AND h.showtime_id = sh.showtime_id AND h.status = 'ACTIVE' " +
+                "        AND h.expires_at > SYSUTCDATETIME() " +
+                "        AND (? IS NULL OR h.hold_token <> ?)) THEN 'HELD' " +
+                "    WHEN st.is_active = 0 THEN 'UNAVAILABLE' " +
+                "    ELSE 'AVAILABLE' " +
+                "END AS availability " +
+                "FROM showtimes sh " +
+                "JOIN seats st ON st.auditorium_id = sh.auditorium_id " +
+                "LEFT JOIN seat_prices sp ON sp.showtime_id = sh.showtime_id AND sp.seat_type = st.seat_type " +
+                "WHERE sh.showtime_id = ? " +
+                "ORDER BY st.row_label, st.seat_number";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, holdToken);
             statement.setString(2, holdToken);
@@ -263,18 +261,16 @@ public class JdbcBookingDAO implements BookingDAO {
             return List.of();
         }
         String placeholders = String.join(",", seatIds.stream().map(ignored -> "?").toList());
-        String sql = """
-                SELECT st.seat_id AS id, st.auditorium_id, st.row_label, st.seat_number,
-                       st.seat_label AS label,
-                       st.seat_type, st.pair_seat_id, COALESCE(sp.price, sh.base_price) AS price,
-                       'AVAILABLE' AS availability
-                FROM showtimes sh WITH (UPDLOCK, HOLDLOCK)
-                JOIN seats st WITH (UPDLOCK, HOLDLOCK) ON st.auditorium_id = sh.auditorium_id
-                LEFT JOIN seat_prices sp ON sp.showtime_id = sh.showtime_id AND sp.seat_type = st.seat_type
-                WHERE sh.showtime_id = ? AND sh.status = 'SCHEDULED' AND st.is_active = 1
-                  AND st.seat_id IN (%s)
-                ORDER BY st.seat_id
-                """.formatted(placeholders);
+        String sql = String.format("SELECT st.seat_id AS id, st.auditorium_id, st.row_label, st.seat_number, " +
+                "st.seat_label AS label, " +
+                "st.seat_type, st.pair_seat_id, COALESCE(sp.price, sh.base_price) AS price, " +
+                "'AVAILABLE' AS availability " +
+                "FROM showtimes sh WITH (UPDLOCK, HOLDLOCK) " +
+                "JOIN seats st WITH (UPDLOCK, HOLDLOCK) ON st.auditorium_id = sh.auditorium_id " +
+                "LEFT JOIN seat_prices sp ON sp.showtime_id = sh.showtime_id AND sp.seat_type = st.seat_type " +
+                "WHERE sh.showtime_id = ? AND sh.status = 'SCHEDULED' AND st.is_active = 1 " +
+                "  AND st.seat_id IN (%s) " +
+                "ORDER BY st.seat_id", placeholders);
         List<Seat> seats = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, showtimeId);
@@ -291,19 +287,17 @@ public class JdbcBookingDAO implements BookingDAO {
             throw new AppException(409, "One or more seats are not part of this showtime.");
         }
 
-        String conflictSql = """
-                SELECT COUNT(*) AS conflicts
-                FROM seats st
-                WHERE st.seat_id IN (%s) AND (
-                    EXISTS (SELECT 1 FROM booking_seats bs
-                            WHERE bs.seat_id = st.seat_id AND bs.showtime_id = ?
-                            AND bs.status = 'BOOKED')
-                    OR EXISTS (SELECT 1 FROM seat_holds h WITH (UPDLOCK, HOLDLOCK)
-                            WHERE h.seat_id = st.seat_id AND h.showtime_id = ?
-                            AND h.status = 'ACTIVE' AND h.expires_at > SYSUTCDATETIME()
-                            AND h.hold_token <> ?)
-                )
-                """.formatted(placeholders);
+        String conflictSql = String.format("SELECT COUNT(*) AS conflicts " +
+                "FROM seats st " +
+                "WHERE st.seat_id IN (%s) AND ( " +
+                "    EXISTS (SELECT 1 FROM booking_seats bs " +
+                "            WHERE bs.seat_id = st.seat_id AND bs.showtime_id = ? " +
+                "            AND bs.status = 'BOOKED') " +
+                "    OR EXISTS (SELECT 1 FROM seat_holds h WITH (UPDLOCK, HOLDLOCK) " +
+                "            WHERE h.seat_id = st.seat_id AND h.showtime_id = ? " +
+                "            AND h.status = 'ACTIVE' AND h.expires_at > SYSUTCDATETIME() " +
+                "            AND h.hold_token <> ?) " +
+                ")", placeholders);
         try (PreparedStatement statement = connection.prepareStatement(conflictSql)) {
             int parameter = 1;
             for (Long seatId : seatIds) {

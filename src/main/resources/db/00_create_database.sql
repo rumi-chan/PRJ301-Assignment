@@ -1,0 +1,4 @@
+CREATE DATABASE CineBook;
+GO
+USE CineBook;
+GO

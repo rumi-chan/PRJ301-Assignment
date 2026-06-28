@@ -11,6 +11,7 @@
             <div class="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 <c:forEach var="movie" items="${movies}">
                     <div>
+                        <c:set var="movie" value="${movie}" scope="request"/>
                         <jsp:include page="/WEB-INF/views/shared/movie-card.jsp"/>
                         <form action="<c:url value='/profile/watchlist'/>" method="post" class="mt-3">
                             <input type="hidden" name="_csrf" value="<c:out value='${csrfToken}'/>"><input type="hidden" name="movieId" value="<c:out value='${movie.id}'/>"><input type="hidden" name="_method" value="DELETE">

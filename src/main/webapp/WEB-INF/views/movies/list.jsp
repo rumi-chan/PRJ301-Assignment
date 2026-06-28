@@ -54,6 +54,7 @@
         <c:when test="${not empty movies}">
             <div class="grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 <c:forEach var="movie" items="${movies}">
+                    <c:set var="movie" value="${movie}" scope="request"/>
                     <jsp:include page="/WEB-INF/views/shared/movie-card.jsp"/>
                 </c:forEach>
             </div>
