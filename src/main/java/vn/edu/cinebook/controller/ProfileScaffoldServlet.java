@@ -25,7 +25,7 @@ public class ProfileScaffoldServlet extends HttpServlet {
         if (!SECTIONS.contains(section)) {
             throw new AppException(404, "Profile section not found.");
         }
-        
+
         // ĐOẠN CODE NẠP LỊCH SỬ ĐÁNH GIÁ CÁ NHÂN ĐÃ ĐƯỢC THÊM SẴN Ở ĐÂY:
         if ("reviews".equals(section)) {
             HttpSession session = request.getSession(false);
@@ -34,7 +34,7 @@ public class ProfileScaffoldServlet extends HttpServlet {
                 request.setAttribute("reviews", ServiceRegistry.REVIEW.getUserReviews(currentUser.id()));
             }
         }
-        
+
         request.setAttribute("profileSection", section);
         WebUtil.view(request, response, "profile/" + section);
     }

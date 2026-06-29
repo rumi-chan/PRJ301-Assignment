@@ -13,7 +13,7 @@
                     <p class="mt-2 max-w-2xl text-zinc-500">Review customer details and lock or unlock access when needed.</p>
                 </div>
             </div>
-            
+
             <c:if test="${not empty flashMessage}">
                 <div class="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm font-bold text-emerald-300">
                     <c:out value="${flashMessage}"/>
