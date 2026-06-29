@@ -24,4 +24,6 @@ public interface BookingDAO {
     List<Booking> findByUser(long userId);
 
     Optional<Booking> findByCode(String code, Long userId);
+
+    Optional<Long> findWatchedBookingId(long userId, long movieId);
 }

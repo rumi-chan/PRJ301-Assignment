@@ -12,8 +12,7 @@ final class JdbcSupport {
     }
 
     static AppException databaseError(SQLException exception) {
-        exception.printStackTrace();
-        return new AppException(500, "Lỗi CSDL: " + exception.getMessage(), exception);
+        return new AppException(500, "The database operation could not be completed.", exception);
     }
 
     static List<String> csv(String value) {

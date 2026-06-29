@@ -81,11 +81,12 @@ public class JdbcUserDAO implements UserDAO {
 
     @Override
     public void updateLockStatus(long id, boolean locked) {
-        String sql = "UPDATE users SET is_locked = ?, updated_at = SYSUTCDATETIME() WHERE user_id = ?";
+        String sql = locked
+                ? "UPDATE users SET is_locked = 1, locked_at = SYSUTCDATETIME(), updated_at = SYSUTCDATETIME() WHERE user_id = ?"
+                : "UPDATE users SET is_locked = 0, locked_at = NULL, updated_at = SYSUTCDATETIME() WHERE user_id = ?";
         try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setBoolean(1, locked);
-            statement.setLong(2, id);
+            statement.setLong(1, id);
             statement.executeUpdate();
         } catch (SQLException exception) {
             throw JdbcSupport.databaseError(exception);

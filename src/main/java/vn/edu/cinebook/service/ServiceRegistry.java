@@ -18,7 +18,7 @@ public final class ServiceRegistry {
             = new BookingService(BOOKINGS, COMBOS, PROMOTIONS, PRICING);
             
     // 2 dòng đăng ký cho Người thứ 4 nằm chuẩn ở đây:
-    public static final ReviewService REVIEW = new ReviewService(REVIEWS);
+    public static final ReviewService REVIEW = new ReviewService(REVIEWS, BOOKINGS);
     public static final AnalyticsService ANALYTICS = new AnalyticsService(ANALYTICS_DAO);
     private ServiceRegistry() {
     }

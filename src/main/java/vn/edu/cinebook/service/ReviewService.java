@@ -1,5 +1,6 @@
 package vn.edu.cinebook.service;
 
+import vn.edu.cinebook.dao.BookingDAO;
 import vn.edu.cinebook.dao.ReviewDAO;
 import vn.edu.cinebook.model.Review;
 import vn.edu.cinebook.util.AppException;
@@ -9,9 +10,11 @@ import java.util.List;
 
 public class ReviewService {
     private final ReviewDAO reviewDAO;
+    private final BookingDAO bookingDAO;
 
-    public ReviewService(ReviewDAO reviewDAO) {
+    public ReviewService(ReviewDAO reviewDAO, BookingDAO bookingDAO) {
         this.reviewDAO = reviewDAO;
+        this.bookingDAO = bookingDAO;
     }
 
     public List<Review> getMovieReviews(long movieId) {
@@ -35,7 +38,9 @@ public class ReviewService {
         if (validTitle != null && validTitle.length() > 150) {
             throw new AppException(400, "Review title is too long.");
         }
-        return reviewDAO.create(userId, movieId, null, rating, validTitle, validContent, containsSpoiler);
+        Long bookingId = bookingDAO.findWatchedBookingId(userId, movieId)
+                .orElseThrow(() -> new AppException(403, "You can review a movie after watching it."));
+        return reviewDAO.create(userId, movieId, bookingId, rating, validTitle, validContent, containsSpoiler);
     }
 
     public void moderateReview(long reviewId, String status, long moderatorId, String note) {

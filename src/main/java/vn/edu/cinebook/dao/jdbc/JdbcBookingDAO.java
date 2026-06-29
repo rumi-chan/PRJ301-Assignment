@@ -219,6 +219,27 @@ public class JdbcBookingDAO implements BookingDAO {
         }
     }
 
+    @Override
+    public Optional<Long> findWatchedBookingId(long userId, long movieId) {
+        String sql = """
+                SELECT TOP 1 b.booking_id
+                FROM bookings b
+                JOIN showtimes sh ON sh.showtime_id = b.showtime_id
+                WHERE b.user_id = ? AND sh.movie_id = ? AND b.status = 'USED'
+                ORDER BY COALESCE(b.used_at, b.paid_at, b.created_at) DESC
+                """;
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, userId);
+            statement.setLong(2, movieId);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? Optional.of(result.getLong(1)) : Optional.empty();
+            }
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
     private List<Seat> findSeats(Connection connection, long showtimeId, String holdToken) throws SQLException {
         String sql = "SELECT st.seat_id AS id, st.auditorium_id, st.row_label, st.seat_number, " +
                 "st.seat_label AS label, " +
