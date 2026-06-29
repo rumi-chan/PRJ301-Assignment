@@ -354,6 +354,67 @@ Tại đây, Shin và gia đình phải đối mặt với những thử thách 
                 WHERE p.showtime_id = st.showtime_id AND p.seat_type = source.seat_type
            );
 
+    /* Homepage banners sourced from the real movie catalog */
+    DECLARE @admin_id BIGINT =
+        (SELECT user_id FROM dbo.users WHERE email = N'admin@cinebook.vn');
+
+    UPDATE dbo.banners
+       SET is_active = 0
+     WHERE title IN (N'Experience Orbit Zero in IMAX', N'Welcome Offer: 10% Off');
+
+    DECLARE @banner_seed TABLE
+    (
+        movie_source_ref VARCHAR(80) NOT NULL PRIMARY KEY,
+        placement        VARCHAR(30) NOT NULL,
+        display_order    INT NOT NULL,
+        subtitle         NVARCHAR(500) NULL
+    );
+
+    INSERT @banner_seed (movie_source_ref, placement, display_order, subtitle)
+    VALUES
+        ('LOTTE-12230', 'HOME_HERO', 10, N'Woody, Buzz, and the gang face a brand-new threat in Pixar''s latest adventure.'),
+        ('LOTTE-12204', 'HOME_HERO', 20, N'Your Name. returns to the big screen for its 10th anniversary.'),
+        ('LOTTE-12238', 'HOME_HERO', 30, N'From the director of Train to Busan — survival horror in the heart of Seoul.'),
+        ('LOTTE-12183', 'HOME_PROMO', 40, N'Found-footage horror set in a haunted mansion outside Saigon.'),
+        ('LOTTE-12075', 'HOME_PROMO', 50, N'Glamour, diamonds, and rebellion in 1960s Saigon.');
+
+    MERGE dbo.banners AS target
+    USING
+    (
+        SELECT seed.placement,
+               seed.display_order,
+               m.title,
+               COALESCE(seed.subtitle, LEFT(m.synopsis, 160)) AS subtitle,
+               COALESCE(m.backdrop_url, m.poster_url) AS image_url,
+               N'/movies/' + CAST(m.movie_id AS NVARCHAR(20)) AS target_url,
+               DATEADD(DAY, -7, @now) AS starts_at,
+               DATEADD(DAY, 120, @now) AS ends_at
+          FROM @banner_seed seed
+          JOIN dbo.movies m ON m.source_ref = seed.movie_source_ref
+    ) AS source
+       ON target.target_url = source.target_url
+      AND target.placement = source.placement
+     WHEN MATCHED THEN
+         UPDATE SET title = source.title,
+                    subtitle = source.subtitle,
+                    image_url = source.image_url,
+                    display_order = source.display_order,
+                    starts_at = source.starts_at,
+                    ends_at = source.ends_at,
+                    is_active = 1,
+                    updated_at = @now
+     WHEN NOT MATCHED THEN
+         INSERT
+         (
+             title, subtitle, image_url, target_url, placement,
+             display_order, starts_at, ends_at, created_by
+         )
+         VALUES
+         (
+             source.title, source.subtitle, source.image_url, source.target_url, source.placement,
+             source.display_order, source.starts_at, source.ends_at, @admin_id
+         );
+
     COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH

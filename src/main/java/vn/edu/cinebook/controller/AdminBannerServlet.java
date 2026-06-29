@@ -59,8 +59,7 @@ public class AdminBannerServlet extends HttpServlet {
             String subtitle = request.getParameter("subtitle");
             if (subtitle == null) subtitle = "";
             String imageUrl = Validation.required(request.getParameter("imageUrl"), "Image URL", 1000);
-            String targetUrl = request.getParameter("targetUrl");
-            if (targetUrl == null) targetUrl = "";
+            String targetUrl = internalTargetUrl(request.getParameter("targetUrl"));
             String placement = Validation.required(request.getParameter("placement"), "Placement", 30);
             int displayOrder = Integer.parseInt(request.getParameter("displayOrder"));
 
@@ -95,5 +94,16 @@ public class AdminBannerServlet extends HttpServlet {
             request.setAttribute("adminSection", "banners");
             WebUtil.view(request, response, "admin/banner-form");
         }
+    }
+
+    private String internalTargetUrl(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        String targetUrl = value.trim();
+        if (!targetUrl.startsWith("/") || targetUrl.startsWith("//")) {
+            throw new AppException(400, "Target URL must be an internal path.");
+        }
+        return targetUrl;
     }
 }

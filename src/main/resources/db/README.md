@@ -13,8 +13,9 @@ The scripts are additive and may be run again in a development database. The
 base seed creates demo users, cinemas, rooms, seats, combos, promotions, and
 fictional fallback movies. `real-catalog-seed.sql` imports the generated Lotte
 Cinema VN movie catalog seed data, hides the fictional catalog movies from
-active listings, and creates demo showtimes for imported now-showing movies so
-the booking flow remains demonstrable. The source snapshots under
+active listings, creates demo showtimes for imported now-showing movies so
+the booking flow remains demonstrable, and replaces homepage banners with real
+movie hero and spotlight promos. The source snapshots under
 `src/main/resources/data` are local generated data and are ignored by Git.
 
 Demo accounts use the password `password`:

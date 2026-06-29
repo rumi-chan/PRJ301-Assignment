@@ -42,6 +42,18 @@ body::before {
     box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
 }
 
+.hero-slide {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .7s ease, visibility .7s ease;
+}
+
+.hero-slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+}
+
 .cinema-screen {
     height: .65rem;
     border-radius: 999px 999px 30% 30%;

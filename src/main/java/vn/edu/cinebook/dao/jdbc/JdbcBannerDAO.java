@@ -43,7 +43,8 @@ public class JdbcBannerDAO implements BannerDAO {
         String sql = SELECT + """
                  WHERE is_active = 1 AND placement IN ('HOME_HERO', 'HOME_PROMO')
                    AND starts_at <= SYSUTCDATETIME() AND ends_at >= SYSUTCDATETIME()
-                 ORDER BY display_order ASC, banner_id DESC
+                 ORDER BY CASE placement WHEN 'HOME_HERO' THEN 0 ELSE 1 END,
+                          display_order ASC, banner_id DESC
                 """;
         try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
