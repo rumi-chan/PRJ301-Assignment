@@ -11,7 +11,10 @@
         <div>
             <p class="text-sm font-bold text-rose-400">Choose when and where</p>
             <h1 class="mt-1 text-3xl font-black sm:text-4xl"><c:out value="${empty movie.title ? 'Available showtimes' : movie.title}"/></h1>
-            <p class="mt-2 text-sm text-zinc-500"><c:out value="${movie.durationMinutes}"/> min · <c:out value="${movie.genres}"/></p>
+            <p class="mt-2 text-sm text-zinc-500">
+                <c:if test="${movie.durationMinutes > 0}"><c:out value="${movie.durationMinutes}"/> min · </c:if>
+                <c:out value="${movie.genres}"/>
+            </p>
         </div>
     </div>
 

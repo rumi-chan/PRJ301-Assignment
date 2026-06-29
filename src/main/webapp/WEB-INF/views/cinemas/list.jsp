@@ -36,7 +36,8 @@
                         <h2 class="mt-5 text-xl font-black"><c:out value="${cinema.name}"/></h2>
                         <p class="mt-2 min-h-10 text-sm leading-5 text-zinc-500"><c:out value="${cinema.address}"/></p>
                         <div class="mt-5 flex flex-wrap gap-2">
-                            <c:forEach var="format" items="${cinema.formats}"><span class="rounded bg-white/5 px-2 py-1 text-[11px] font-bold text-zinc-400"><c:out value="${format}"/></span></c:forEach>
+                            <c:if test="${not empty cinema.district}"><span class="rounded bg-white/5 px-2 py-1 text-[11px] font-bold text-zinc-400"><c:out value="${cinema.district}"/></span></c:if>
+                            <c:if test="${not empty cinema.phone}"><span class="rounded bg-white/5 px-2 py-1 text-[11px] font-bold text-zinc-400"><c:out value="${cinema.phone}"/></span></c:if>
                         </div>
                         <a href="<c:url value='/movies'/>" class="mt-6 inline-flex items-center gap-2 text-sm font-black text-rose-400 group-hover:text-rose-300">Choose a movie <span aria-hidden="true">→</span></a>
                     </article>

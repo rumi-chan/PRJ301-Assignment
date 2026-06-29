@@ -68,12 +68,13 @@ BEGIN
     CREATE TABLE dbo.movies
     (
         movie_id           BIGINT IDENTITY(1,1) NOT NULL,
+        source_ref         VARCHAR(80) NULL,
         title              NVARCHAR(200) NOT NULL,
         slug               VARCHAR(220) NOT NULL,
         synopsis           NVARCHAR(MAX) NOT NULL,
         director           NVARCHAR(200) NOT NULL,
         cast_text          NVARCHAR(1000) NULL,
-        duration_minutes   SMALLINT NOT NULL,
+        duration_minutes   SMALLINT NULL,
         age_rating         VARCHAR(20) NOT NULL,
         release_date       DATE NOT NULL,
         end_date           DATE NULL,
@@ -89,10 +90,55 @@ BEGIN
         row_version        ROWVERSION NOT NULL,
         CONSTRAINT PK_movies PRIMARY KEY CLUSTERED (movie_id),
         CONSTRAINT UQ_movies_slug UNIQUE (slug),
-        CONSTRAINT CK_movies_duration CHECK (duration_minutes BETWEEN 1 AND 600),
+        CONSTRAINT CK_movies_duration CHECK (duration_minutes IS NULL OR duration_minutes BETWEEN 1 AND 600),
         CONSTRAINT CK_movies_dates CHECK (end_date IS NULL OR end_date >= release_date),
         CONSTRAINT CK_movies_status CHECK (status IN ('NOW_SHOWING', 'COMING_SOON', 'ARCHIVED'))
     );
+END;
+GO
+
+IF COL_LENGTH(N'dbo.movies', N'source_ref') IS NULL
+BEGIN
+    ALTER TABLE dbo.movies ADD source_ref VARCHAR(80) NULL;
+END;
+GO
+
+IF EXISTS
+(
+    SELECT 1 FROM sys.check_constraints
+    WHERE parent_object_id = OBJECT_ID(N'dbo.movies')
+      AND name = N'CK_movies_duration'
+)
+BEGIN
+    ALTER TABLE dbo.movies DROP CONSTRAINT CK_movies_duration;
+END;
+GO
+
+ALTER TABLE dbo.movies ALTER COLUMN duration_minutes SMALLINT NULL;
+GO
+
+IF NOT EXISTS
+(
+    SELECT 1 FROM sys.check_constraints
+    WHERE parent_object_id = OBJECT_ID(N'dbo.movies')
+      AND name = N'CK_movies_duration'
+)
+BEGIN
+    ALTER TABLE dbo.movies
+        ADD CONSTRAINT CK_movies_duration
+        CHECK (duration_minutes IS NULL OR duration_minutes BETWEEN 1 AND 600);
+END;
+GO
+
+IF NOT EXISTS
+(
+    SELECT 1 FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'dbo.movies') AND name = N'UX_movies_source_ref'
+)
+BEGIN
+    CREATE UNIQUE INDEX UX_movies_source_ref
+        ON dbo.movies(source_ref)
+        WHERE source_ref IS NOT NULL;
 END;
 GO
 

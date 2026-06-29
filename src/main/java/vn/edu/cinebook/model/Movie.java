@@ -10,7 +10,7 @@ public record Movie(
         String synopsis,
         String director,
         String cast,
-        int durationMinutes,
+        Integer durationMinutes,
         String ageRating,
         LocalDate releaseDate,
         String posterUrl,
@@ -27,7 +27,9 @@ public record Movie(
     public String getSummary() { return synopsis; }
     public String getDirector() { return director; }
     public String getCast() { return cast; }
-    public int getDurationMinutes() { return durationMinutes; }
+    public String getCastNames() { return cast; }
+    public String getLanguage() { return ""; }
+    public Integer getDurationMinutes() { return durationMinutes; }
     public String getAgeRating() { return ageRating; }
     public LocalDate getReleaseDate() { return releaseDate; }
     public String getPosterUrl() { return posterUrl; }
@@ -35,5 +37,6 @@ public record Movie(
     public String getTrailerUrl() { return trailerUrl; }
     public MovieStatus getStatus() { return status; }
     public List<String> getGenres() { return genres; }
+    public String getGenreNames() { return genres == null ? "" : String.join(", ", genres); }
     public List<MovieFormat> getFormats() { return formats; }
 }

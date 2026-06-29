@@ -111,7 +111,7 @@ public class JdbcMovieDAO implements MovieDAO {
                 result.getString("synopsis"),
                 result.getString("director"),
                 result.getString("cast_text"),
-                result.getInt("duration_minutes"),
+                result.getObject("duration_minutes", Integer.class),
                 result.getString("age_rating"),
                 result.getDate("release_date").toLocalDate(),
                 result.getString("poster_url"),

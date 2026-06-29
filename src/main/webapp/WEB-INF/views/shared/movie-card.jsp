@@ -25,7 +25,7 @@
                 <c:when test="${not empty movie.genres}"><c:out value="${movie.genres}"/></c:when>
                 <c:otherwise>Movie</c:otherwise>
             </c:choose>
-            <c:if test="${not empty movie.durationMinutes}"> · <c:out value="${movie.durationMinutes}"/> min</c:if>
+            <c:if test="${movie.durationMinutes > 0}"> · <c:out value="${movie.durationMinutes}"/> min</c:if>
         </p>
     </div>
 </div>
