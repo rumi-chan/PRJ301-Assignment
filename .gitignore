@@ -28,5 +28,6 @@ replay_pid*
 /.idea/
 *.iml
 /src/main/resources/cinebook-local.properties
+/src/main/resources/data/
 AGENTS.md
 /knowledge/

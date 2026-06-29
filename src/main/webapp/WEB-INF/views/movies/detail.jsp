@@ -27,8 +27,8 @@
             <h1 class="mt-4 text-4xl font-black leading-tight tracking-tight sm:text-6xl"><c:out value="${movie.title}"/></h1>
             <p class="mt-3 text-sm text-zinc-400">
                 <c:if test="${not empty movie.releaseDate}"><c:out value="${movie.releaseDate}"/> · </c:if>
-                <c:if test="${not empty movie.durationMinutes}"><c:out value="${movie.durationMinutes}"/> minutes · </c:if>
-                <c:out value="${movie.genres}"/>
+                <c:if test="${not empty movie.durationMinutes && movie.durationMinutes > 0}"><c:out value="${movie.durationMinutes}"/> minutes · </c:if>
+                <c:out value="${movie.genreNames}"/>
             </p>
             <p class="mt-6 max-w-3xl text-base leading-7 text-zinc-300 sm:text-lg"><c:out value="${movie.summary}"/></p>
             <div class="mt-8 flex flex-wrap gap-3">
@@ -68,7 +68,14 @@
             <div id="trailer" class="mt-10 scroll-mt-24">
                 <h2 class="text-2xl font-black">Official trailer</h2>
                 <div class="mt-5 aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black">
-                    <iframe src="<c:out value='${movie.trailerUrl}'/>" title="<c:out value='${movie.title}'/> trailer" class="h-full w-full" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <c:choose>
+                        <c:when test="${fn:contains(movie.trailerUrl, '.mp4')}">
+                            <video src="<c:out value='${movie.trailerUrl}'/>" title="<c:out value='${movie.title}'/> trailer" class="h-full w-full" controls preload="metadata"></video>
+                        </c:when>
+                        <c:otherwise>
+                            <iframe src="<c:out value='${movie.trailerUrl}'/>" title="<c:out value='${movie.title}'/> trailer" class="h-full w-full" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
         </c:if>

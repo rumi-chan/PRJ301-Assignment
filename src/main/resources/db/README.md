@@ -6,11 +6,16 @@ Run the scripts with SQL Server 2019 or newer:
 sqlcmd -S localhost -E -C -Q "IF DB_ID('CineBook') IS NULL CREATE DATABASE CineBook"
 sqlcmd -S localhost -E -C -d CineBook -b -i schema.sql
 sqlcmd -S localhost -E -C -d CineBook -b -i seed.sql
+sqlcmd -S localhost -E -C -d CineBook -b -f 65001 -i real-catalog-seed.sql
 ```
 
-Both scripts are additive and may be run again in a development database. The
-seed creates fictional movies and tomorrow-oriented showtimes so the booking
-flow remains immediately demonstrable after a fresh setup.
+The scripts are additive and may be run again in a development database. The
+base seed creates demo users, cinemas, rooms, seats, combos, promotions, and
+fictional fallback movies. `real-catalog-seed.sql` imports the generated Lotte
+Cinema VN movie catalog seed data, hides the fictional catalog movies from
+active listings, and creates demo showtimes for imported now-showing movies so
+the booking flow remains demonstrable. The source snapshots under
+`src/main/resources/data` are local generated data and are ignored by Git.
 
 Demo accounts use the password `password`:
 

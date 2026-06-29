@@ -10,7 +10,7 @@ public record Movie(
         String synopsis,
         String director,
         String cast,
-        int durationMinutes,
+        Integer durationMinutes,
         String ageRating,
         LocalDate releaseDate,
         String posterUrl,
@@ -27,7 +27,7 @@ public record Movie(
     public String getSummary() { return synopsis; }
     public String getDirector() { return director; }
     public String getCast() { return cast; }
-    public int getDurationMinutes() { return durationMinutes; }
+    public Integer getDurationMinutes() { return durationMinutes; }
     public String getAgeRating() { return ageRating; }
     public LocalDate getReleaseDate() { return releaseDate; }
     public String getPosterUrl() { return posterUrl; }
@@ -39,7 +39,7 @@ public record Movie(
     public String genreNames() { return getGenreNames(); }
     public String getCastNames() { return cast == null ? "" : cast; }
     public String castNames() { return getCastNames(); }
-    public String getLanguage() { return "Vietnamese / English"; }
+    public String getLanguage() { return ""; }
     public String language() { return getLanguage(); }
     public List<MovieFormat> getFormats() { return formats; }
 }

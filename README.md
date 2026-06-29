@@ -18,7 +18,8 @@ SQL Server, Maven, Tomcat 10.1, Tailwind CSS CDN, and vanilla JavaScript.
 - [x] Added booking history and electronic booking-code tickets.
 - [x] Added ADMIN-protected navigation and screen scaffolds for UC11-UC20.
 - [x] Added profile scaffolds for reviews and watchlists.
-- [x] Added SQL Server schema and realistic development seed data.
+- [x] Added SQL Server schema, demo operational seed data, and a Lotte Cinema
+      VN real movie catalog import.
 - [x] Added the Obsidian-compatible LLM project wiki under `knowledge/`.
 - [x] Built `target/cinebook.war`.
 
@@ -38,7 +39,9 @@ These are intentionally outside the completed starter-template slice:
       database credentials.
 - [ ] Add more SQL Server integration tests for payment idempotency, expired
       checkout, and booking-history snapshots.
-- [ ] Replace placeholder image URLs and fictional catalog data when desired.
+- [ ] Crawl/import real cinemas, rooms, showtimes, prices, and seat
+      availability if the project must go beyond the current real movie
+      catalog plus demo booking schedule.
 - [ ] Set secure production cookies and HTTPS before deployment outside a local
       classroom environment.
 
@@ -247,7 +250,58 @@ Seats:    396
 Combos:     4
 ```
 
-### Part G — Create the application's SQL login
+### Part G — Import the real Lotte movie catalog
+
+This step replaces the active fictional movie catalog with the real movie
+snapshot crawled from Lotte Cinema VN. It keeps the demo cinemas, rooms, seats,
+combos, and booking logic so the assignment flow can still be tested.
+
+- [ ] Select **File → Open → File** again.
+- [ ] Open:
+
+```text
+src\main\resources\db\real-catalog-seed.sql
+```
+
+- [ ] Confirm that the database dropdown still says `CineBook`.
+- [ ] Select **Execute** or press `F5`.
+
+The real catalog seed adds:
+
+- 51 Lotte movie records from `src\main\resources\data`
+- 51 Lotte movie records embedded in `real-catalog-seed.sql`
+- real titles, posters, release dates, countries, genres, and synopsis text
+- nullable runtimes for coming-soon movies that do not publish a runtime yet
+- demo showtimes for the 12 now-showing movies
+- seat prices for those generated demo showtimes
+
+Verify the real import with:
+
+```sql
+USE CineBook;
+GO
+
+SELECT COUNT(*) AS RealMovies
+FROM dbo.movies
+WHERE source_ref LIKE 'LOTTE-%';
+
+SELECT COUNT(*) AS RealDemoShowtimes
+FROM dbo.showtimes
+WHERE source_ref LIKE 'LOTTE-DEMO-%';
+GO
+```
+
+Expected results:
+
+```text
+RealMovies:        51
+RealDemoShowtimes: 12
+```
+
+If Vietnamese text looks broken in SSMS, close the query tab and reopen the SQL
+file. The script is saved as UTF-8. If you use `sqlcmd`, include `-f 65001`.
+
+### Part H — Create the application's SQL login
 
 Choose your own strong password in the following script. The example password
 is only a placeholder.
@@ -305,7 +359,7 @@ Test the login:
 If the login fails, revisit Part C and confirm that SQL Server was restarted
 after enabling mixed authentication.
 
-### Part H — Confirm SQL Server TCP/IP
+### Part I — Confirm SQL Server TCP/IP
 
 JDBC normally connects through TCP/IP.
 
@@ -331,7 +385,7 @@ jdbc:sqlserver://localhost;instanceName=SQLEXPRESS;databaseName=CineBook;encrypt
 If the named-instance URL cannot connect, configure a fixed TCP port in SQL
 Server Configuration Manager or ask your instructor which port to use.
 
-### Part I — Add database variables to Windows
+### Part J — Add database variables to Windows
 
 This is the easiest way to make the same settings available to NetBeans and
 Tomcat.
@@ -349,7 +403,7 @@ Variable name:  CINEBOOK_DB_USER
 Variable value: cinebook_app
 
 Variable name:  CINEBOOK_DB_PASSWORD
-Variable value: the password chosen in Part G
+Variable value: the password chosen in Part H
 ```
 
 - [ ] Select **OK** on every open environment-variable window.
@@ -362,7 +416,7 @@ when they start.
 Do not write real passwords in Java source, `pom.xml`, Git, screenshots, or
 the project wiki.
 
-### Part J — Register Tomcat 10.1 in NetBeans
+### Part K — Register Tomcat 10.1 in NetBeans
 
 - [ ] Open NetBeans.
 - [ ] Select **Window → Services**, or press `Ctrl+5`.
@@ -386,7 +440,7 @@ appears.
 If Tomcat is already registered, right-click it, select **Properties**, and
 confirm that it uses Java 17.
 
-### Part K — Open the Maven project in NetBeans
+### Part L — Open the Maven project in NetBeans
 
 - [ ] Select **File → Open Project**.
 - [ ] Choose the repository root:
@@ -410,7 +464,7 @@ If the project icon shows an error:
 3. Confirm that Java 17 is selected under **Properties → Sources**.
 4. Check the **Notifications** and **Output** windows for the actual error.
 
-### Part L — Assign Tomcat to the project
+### Part M — Assign Tomcat to the project
 
 - [ ] Right-click the CineBook project.
 - [ ] Select **Properties**.
@@ -425,7 +479,7 @@ The application context path is:
 /cinebook
 ```
 
-### Part M — Build in NetBeans
+### Part N — Build in NetBeans
 
 - [ ] Right-click the CineBook project.
 - [ ] Select **Clean and Build**.
@@ -445,7 +499,7 @@ target\cinebook.war
 If dependency downloads fail, confirm that the computer has internet access
 and retry **Clean and Build**.
 
-### Part N — Run in NetBeans
+### Part O — Run in NetBeans
 
 - [ ] Right-click the project.
 - [ ] Select **Run**.
@@ -471,6 +525,7 @@ see the troubleshooting section below.
 - [ ] Create a database named `CineBook`.
 - [ ] Run `src/main/resources/db/schema.sql`.
 - [ ] Run `src/main/resources/db/seed.sql`.
+- [ ] Run `src/main/resources/db/real-catalog-seed.sql`.
 
 PowerShell example using Windows authentication:
 
@@ -478,9 +533,12 @@ PowerShell example using Windows authentication:
 sqlcmd -S localhost -E -C -Q "IF DB_ID('CineBook') IS NULL CREATE DATABASE CineBook"
 sqlcmd -S localhost -E -C -d CineBook -b -i ".\src\main\resources\db\schema.sql"
 sqlcmd -S localhost -E -C -d CineBook -b -i ".\src\main\resources\db\seed.sql"
+sqlcmd -S localhost -E -C -d CineBook -b -f 65001 -i ".\src\main\resources\db\real-catalog-seed.sql"
 ```
 
-The scripts are additive and may be run again in a development database.
+The scripts are additive and may be run again in a development database. The
+real catalog script imports 51 Lotte movie records and creates 12 generated
+demo showtimes for now-showing movies.
 
 ### 2. Configure the database connection
 
@@ -615,7 +673,7 @@ Replace all demo passwords outside a classroom environment.
 
 - Check the Tomcat Output window for the underlying SQL exception.
 - Confirm that `CineBook` exists.
-- Run both `schema.sql` and `seed.sql`.
+- Run `schema.sql`, `seed.sql`, and `real-catalog-seed.sql`.
 - Confirm the application login has `db_datareader` and `db_datawriter`.
 - Confirm the environment variables are visible to the NetBeans process.
 

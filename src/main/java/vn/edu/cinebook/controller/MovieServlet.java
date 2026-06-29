@@ -12,6 +12,8 @@ import vn.edu.cinebook.util.Validation;
 import vn.edu.cinebook.util.WebUtil;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @WebServlet("/movies/*")
 public class MovieServlet extends HttpServlet {
@@ -36,15 +38,46 @@ public class MovieServlet extends HttpServlet {
         if (status == null) {
             status = "NOW_SHOWING";
         }
-        request.setAttribute("selectedStatus", status);
-        request.setAttribute("selectedGenre", request.getParameter("genre"));
-        request.setAttribute("selectedFormat", request.getParameter("format"));
-        request.setAttribute("query", request.getParameter("q"));
+        String query = request.getParameter("q");
+        String genre = request.getParameter("genre");
+        String format = request.getParameter("format");
+        request.setAttribute("filters", Map.of(
+                "status", status,
+                "query", query == null ? "" : query,
+                "genre", genre == null ? "" : genre,
+                "format", format == null ? "" : format
+        ));
+        request.setAttribute("formats", List.of("2D", "3D", "IMAX"));
         request.setAttribute("genres", ServiceRegistry.CATALOG.genres());
         request.setAttribute("banners", ServiceRegistry.CATALOG.activeHomeBanners());
-        request.setAttribute("movies", ServiceRegistry.CATALOG.searchMovies(
-                status, request.getParameter("q"), request.getParameter("genre"),
-                request.getParameter("format")));
+        var movies = ServiceRegistry.CATALOG.searchMovies(status, query, genre, format);
+        request.setAttribute("movies", movies);
+        request.setAttribute("totalCount", movies.size());
+        request.setAttribute("resultLabel", statusLabel(status));
+        request.setAttribute("pageTitle", pageTitle(status, query));
         WebUtil.view(request, response, "movies/list");
+    }
+
+    private static String statusLabel(String status) {
+        if ("COMING_SOON".equalsIgnoreCase(status)) {
+            return "Coming soon";
+        }
+        if ("NOW_SHOWING".equalsIgnoreCase(status)) {
+            return "Now showing";
+        }
+        return "Cinema catalog";
+    }
+
+    private static String pageTitle(String status, String query) {
+        if (query != null && !query.isBlank()) {
+            return "Search results for \"" + query.trim() + "\"";
+        }
+        if ("COMING_SOON".equalsIgnoreCase(status)) {
+            return "Upcoming movies";
+        }
+        if ("NOW_SHOWING".equalsIgnoreCase(status)) {
+            return "Movies playing now";
+        }
+        return "Movies to watch";
     }
 }
