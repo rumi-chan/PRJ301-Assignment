@@ -28,8 +28,15 @@ public class ErrorHandlingFilter implements Filter {
             handle((HttpServletRequest) request, (HttpServletResponse) response,
                     exception.getStatusCode(), exception.getMessage(), exception);
         } catch (RuntimeException exception) {
+            String detail = exception.getClass().getSimpleName() + ": " + exception.getMessage();
+            if (exception.getCause() != null) detail += " [Cause: " + exception.getCause() + "]";
             handle((HttpServletRequest) request, (HttpServletResponse) response,
-                    500, "An unexpected error occurred.", exception);
+                    500, detail, exception);
+        } catch (Exception exception) {
+            String detail = exception.getClass().getSimpleName() + ": " + exception.getMessage();
+            if (exception.getCause() != null) detail += " [Cause: " + exception.getCause() + "]";
+            handle((HttpServletRequest) request, (HttpServletResponse) response,
+                    500, detail, exception);
         }
     }
 

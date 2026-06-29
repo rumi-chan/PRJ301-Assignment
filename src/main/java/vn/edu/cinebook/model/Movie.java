@@ -35,5 +35,8 @@ public record Movie(
     public String getTrailerUrl() { return trailerUrl; }
     public MovieStatus getStatus() { return status; }
     public List<String> getGenres() { return genres; }
+    public String getGenreNames() { return genres != null ? String.join(", ", genres) : ""; }
+    public String getCastNames() { return cast != null ? cast : ""; }
+    public String getLanguage() { return ""; }
     public List<MovieFormat> getFormats() { return formats; }
 }

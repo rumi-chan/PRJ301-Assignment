@@ -7,13 +7,14 @@
 </jsp:include>
 <section class="relative overflow-hidden border-b border-white/10">
     <c:if test="${not empty movie.backdropUrl}">
-        <img src="<c:out value='${movie.backdropUrl}'/>" alt="" class="absolute inset-0 h-full w-full object-cover opacity-20">
+        <img src="${movie.backdropUrl}" alt="" class="absolute inset-0 h-full w-full object-cover opacity-20">
+        <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent"></div>
     </c:if>
-    <div class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/90 to-zinc-950/55"></div>
-    <div class="relative mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[220px_1fr] lg:px-8 lg:py-20">
-        <div class="mx-auto w-48 overflow-hidden rounded-2xl bg-zinc-900 poster-shadow md:mx-0 md:w-full">
-            <c:choose>
-                <c:when test="${not empty movie.posterUrl}"><img src="<c:out value='${movie.posterUrl}'/>" alt="<c:out value='${movie.title}'/> poster" class="aspect-[2/3] h-full w-full object-cover"></c:when>
+    <div class="relative mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
+        <div class="grid gap-8 md:grid-cols-[280px_1fr]">
+            <div class="overflow-hidden rounded-2xl bg-zinc-900 poster-shadow">
+                <c:choose>
+                    <c:when test="${not empty movie.posterUrl}"><img src="${movie.posterUrl}" alt="${movie.title} poster" class="aspect-[2/3] h-full w-full object-cover"></c:when>
                 <c:otherwise><div class="grid aspect-[2/3] place-items-center bg-gradient-to-br from-zinc-800 to-rose-950 p-6 text-center text-xl font-black text-zinc-500"><c:out value="${movie.title}"/></div></c:otherwise>
             </c:choose>
         </div>
@@ -43,8 +44,11 @@
                 <c:if test="${not empty movie.trailerUrl}"><a href="#trailer" class="rounded-xl border border-white/15 px-6 py-3 font-black hover:bg-white/5">Watch trailer</a></c:if>
                 <c:if test="${not empty viewer}">
                     <form action="<c:url value='/profile/watchlist'/>" method="post">
-                        <input type="hidden" name="_csrf" value="<c:out value='${csrfToken}'/>">
-                        <input type="hidden" name="movieId" value="<c:out value='${movie.id}'/>">
+                        <input type="hidden" name="_csrf" value="${csrfToken}">
+                        <input type="hidden" name="movieId" value="${movie.id}">
+                        <c:if test="${inWatchlist}">
+                            <input type="hidden" name="_method" value="DELETE">
+                        </c:if>
                         <button class="rounded-xl border border-white/15 px-6 py-3 font-black hover:bg-white/5">${inWatchlist ? '✓ In watchlist' : '+ Watchlist'}</button>
                     </form>
                 </c:if>
@@ -64,7 +68,7 @@
             <div id="trailer" class="mt-10 scroll-mt-24">
                 <h2 class="text-2xl font-black">Official trailer</h2>
                 <div class="mt-5 aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black">
-                    <iframe src="<c:out value='${movie.trailerUrl}'/>" title="<c:out value='${movie.title}'/> trailer" class="h-full w-full" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe src="${movie.trailerUrl}" title="${movie.title} trailer" class="h-full w-full" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
         </c:if>

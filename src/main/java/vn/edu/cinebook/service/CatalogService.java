@@ -1,9 +1,13 @@
 package vn.edu.cinebook.service;
 
+import vn.edu.cinebook.dao.BannerDAO;
 import vn.edu.cinebook.dao.CinemaDAO;
 import vn.edu.cinebook.dao.MovieDAO;
 import vn.edu.cinebook.dao.ShowtimeDAO;
+import vn.edu.cinebook.dao.WatchlistDAO;
+import vn.edu.cinebook.model.Banner;
 import vn.edu.cinebook.model.Cinema;
+import vn.edu.cinebook.model.Genre;
 import vn.edu.cinebook.model.Movie;
 import vn.edu.cinebook.model.MovieFormat;
 import vn.edu.cinebook.model.MovieStatus;
@@ -17,11 +21,16 @@ public class CatalogService {
     private final MovieDAO movieDAO;
     private final CinemaDAO cinemaDAO;
     private final ShowtimeDAO showtimeDAO;
+    private final BannerDAO bannerDAO;
+    private final WatchlistDAO watchlistDAO;
 
-    public CatalogService(MovieDAO movieDAO, CinemaDAO cinemaDAO, ShowtimeDAO showtimeDAO) {
+    public CatalogService(MovieDAO movieDAO, CinemaDAO cinemaDAO, ShowtimeDAO showtimeDAO,
+                          BannerDAO bannerDAO, WatchlistDAO watchlistDAO) {
         this.movieDAO = movieDAO;
         this.cinemaDAO = cinemaDAO;
         this.showtimeDAO = showtimeDAO;
+        this.bannerDAO = bannerDAO;
+        this.watchlistDAO = watchlistDAO;
     }
 
     public List<Movie> searchMovies(String status, String query, String genre, String format) {
@@ -51,6 +60,66 @@ public class CatalogService {
 
     public Showtime showtime(long id) {
         return showtimeDAO.findById(id).orElseThrow(() -> new AppException(404, "Showtime not found."));
+    }
+
+    public List<Movie> adminMovies(String query) {
+        return movieDAO.findAllAdmin(query);
+    }
+
+    public List<Genre> allGenres() {
+        return movieDAO.listAllGenres();
+    }
+
+    public long createMovie(Movie movie, List<Integer> genreIds, List<MovieFormat> formats) {
+        return movieDAO.insert(movie, genreIds, formats);
+    }
+
+    public void updateMovie(Movie movie, List<Integer> genreIds, List<MovieFormat> formats) {
+        movieDAO.update(movie, genreIds, formats);
+    }
+
+    public void deleteMovie(long id) {
+        movieDAO.delete(id);
+    }
+
+    public List<Banner> adminBanners() {
+        return bannerDAO.findAllAdmin();
+    }
+
+    public List<Banner> activeHomeBanners() {
+        return bannerDAO.findActiveHomeBanners();
+    }
+
+    public Banner banner(long id) {
+        return bannerDAO.findById(id).orElseThrow(() -> new AppException(404, "Banner not found."));
+    }
+
+    public long createBanner(Banner banner, Long createdBy) {
+        return bannerDAO.insert(banner, createdBy);
+    }
+
+    public void updateBanner(Banner banner) {
+        bannerDAO.update(banner);
+    }
+
+    public void deleteBanner(long id) {
+        bannerDAO.delete(id);
+    }
+
+    public List<Movie> watchlist(long userId) {
+        return watchlistDAO.findMoviesByUserId(userId);
+    }
+
+    public boolean inWatchlist(long userId, long movieId) {
+        return watchlistDAO.isWatchlisted(userId, movieId);
+    }
+
+    public void toggleWatchlist(long userId, long movieId, boolean add) {
+        if (add) {
+            watchlistDAO.add(userId, movieId);
+        } else {
+            watchlistDAO.remove(userId, movieId);
+        }
     }
 
     private MovieStatus parseStatus(String value) {

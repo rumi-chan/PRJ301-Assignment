@@ -4,7 +4,7 @@
     <a href="<c:url value='/movies/${movie.id}'/>" class="block overflow-hidden rounded-2xl bg-zinc-900 poster-shadow">
         <div class="relative aspect-[2/3] overflow-hidden">
             <c:if test="${not empty movie.posterUrl}">
-                <img data-poster src="<c:out value='${movie.posterUrl}'/>" alt="<c:out value='${movie.title}'/> poster" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+                <img data-poster src="${movie.posterUrl}" alt="${movie.title} poster" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
             </c:if>
             <div class="${not empty movie.posterUrl ? 'hidden' : ''} grid h-full w-full place-items-center bg-gradient-to-br from-zinc-800 via-zinc-900 to-rose-950 p-6 text-center">
                 <span class="text-2xl font-black text-zinc-500"><c:out value="${movie.title}"/></span>

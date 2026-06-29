@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import vn.edu.cinebook.model.User;
 import vn.edu.cinebook.service.ServiceRegistry;
 import vn.edu.cinebook.util.Validation;
 import vn.edu.cinebook.util.WebUtil;
@@ -20,6 +21,10 @@ public class MovieServlet extends HttpServlet {
         if (path != null && path.length() > 1) {
             long id = Validation.positiveLong(path.substring(1), "Movie");
             request.setAttribute("movie", ServiceRegistry.CATALOG.movie(id));
+            User user = (User) request.getSession().getAttribute("currentUser");
+            if (user != null) {
+                request.setAttribute("inWatchlist", ServiceRegistry.CATALOG.inWatchlist(user.id(), id));
+            }
             WebUtil.view(request, response, "movies/detail");
             return;
         }
@@ -33,6 +38,7 @@ public class MovieServlet extends HttpServlet {
         request.setAttribute("selectedFormat", request.getParameter("format"));
         request.setAttribute("query", request.getParameter("q"));
         request.setAttribute("genres", ServiceRegistry.CATALOG.genres());
+        request.setAttribute("banners", ServiceRegistry.CATALOG.activeHomeBanners());
         request.setAttribute("movies", ServiceRegistry.CATALOG.searchMovies(
                 status, request.getParameter("q"), request.getParameter("genre"),
                 request.getParameter("format")));

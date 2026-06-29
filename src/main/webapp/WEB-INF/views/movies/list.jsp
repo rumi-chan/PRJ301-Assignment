@@ -4,6 +4,26 @@
     <jsp:param name="title" value="Movies"/>
     <jsp:param name="active" value="movies"/>
 </jsp:include>
+
+<c:if test="${not empty banners}">
+    <section class="relative mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <c:forEach var="b" items="${banners}">
+                <a href="${not empty b.targetUrl ? b.targetUrl : '#'}" class="group relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 shadow-2xl transition hover:scale-[1.02] hover:border-rose-500/50 block">
+                    <img src="${b.imageUrl}" alt="${b.title}" class="h-56 w-full object-cover transition duration-500 group-hover:scale-105 opacity-80">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-6 flex flex-col justify-end">
+                        <span class="w-fit rounded-full bg-rose-600/80 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-md">Featured Promo</span>
+                        <h3 class="mt-2 text-xl font-black text-white group-hover:text-rose-400 transition"><c:out value="${b.title}"/></h3>
+                        <c:if test="${not empty b.subtitle}">
+                            <p class="mt-1 text-xs text-zinc-300 line-clamp-2"><c:out value="${b.subtitle}"/></p>
+                        </c:if>
+                    </div>
+                </a>
+            </c:forEach>
+        </div>
+    </section>
+</c:if>
+
 <section class="relative overflow-hidden border-b border-white/5">
     <div class="absolute inset-0 bg-gradient-to-r from-rose-950/35 via-transparent to-amber-950/20"></div>
     <div class="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
@@ -13,7 +33,7 @@
             <label class="relative flex-1">
                 <span class="sr-only">Search movies</span>
                 <svg viewBox="0 0 24 24" class="absolute left-3 top-3.5 h-5 w-5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-                <input name="q" value="<c:out value='${not empty filters.query ? filters.query : param.q}'/>" placeholder="Search by movie title…" class="w-full rounded-xl border border-white/10 bg-black/25 py-3 pl-11 pr-4 outline-none focus:border-rose-500">
+                <input name="q" value="${not empty filters.query ? filters.query : param.q}" placeholder="Search by movie title…" class="w-full rounded-xl border border-white/10 bg-black/25 py-3 pl-11 pr-4 outline-none focus:border-rose-500">
             </label>
             <button class="rounded-xl bg-rose-600 px-6 py-3 font-black hover:bg-rose-500">Find a movie</button>
         </form>
@@ -22,7 +42,7 @@
 
 <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
     <form action="<c:url value='/movies'/>" method="get" class="mb-10 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-4">
-        <input type="hidden" name="q" value="<c:out value='${not empty filters.query ? filters.query : param.q}'/>">
+        <input type="hidden" name="q" value="${not empty filters.query ? filters.query : param.q}">
         <select name="status" class="rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none focus:border-rose-500">
             <option value="">All releases</option>
             <option value="NOW_SHOWING" ${param.status == 'NOW_SHOWING' || filters.status == 'NOW_SHOWING' ? 'selected' : ''}>Now showing</option>
@@ -31,13 +51,13 @@
         <select name="genre" class="rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none focus:border-rose-500">
             <option value="">All genres</option>
             <c:forEach var="genre" items="${genres}">
-                <option value="<c:out value='${genre}'/>" ${param.genre == genre ? 'selected' : ''}><c:out value="${genre}"/></option>
+                <option value="${genre}" ${param.genre == genre ? 'selected' : ''}><c:out value="${genre}"/></option>
             </c:forEach>
         </select>
         <select name="format" class="rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none focus:border-rose-500">
             <option value="">All formats</option>
             <c:forEach var="format" items="${empty formats ? ['2D','3D','IMAX'] : formats}">
-                <option value="<c:out value='${format}'/>" ${param.format == format || filters.format == format ? 'selected' : ''}><c:out value="${format}"/></option>
+                <option value="${format}" ${param.format == format || filters.format == format ? 'selected' : ''}><c:out value="${format}"/></option>
             </c:forEach>
         </select>
         <button class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold hover:border-rose-500/50 hover:bg-rose-500/10">Apply filters</button>
@@ -53,7 +73,8 @@
     <c:choose>
         <c:when test="${not empty movies}">
             <div class="grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                <c:forEach var="movie" items="${movies}">
+                <c:forEach var="m" items="${movies}">
+                    <c:set var="movie" value="${m}" scope="request"/>
                     <jsp:include page="/WEB-INF/views/shared/movie-card.jsp"/>
                 </c:forEach>
             </div>
