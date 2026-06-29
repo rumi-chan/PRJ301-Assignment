@@ -58,7 +58,7 @@
                             <p class="text-xs text-zinc-500"><c:out value="${viewer.role}"/></p>
                         </div>
                         <form action="<c:url value='/auth/logout'/>" method="post">
-                            <input type="hidden" name="_csrf" value="<c:out value='${csrfToken}'/>">
+                            <input type="hidden" name="_csrf" value="${csrfToken}">
                             <button class="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-zinc-300 hover:border-white/20 hover:bg-white/5">Sign out</button>
                         </form>
                     </c:when>
@@ -83,7 +83,7 @@
                     <a href="<c:url value='/profile/watchlist'/>" class="rounded-lg px-3 py-2 hover:bg-white/5">Watchlist</a>
                     <c:if test="${viewer.role == 'ADMIN'}"><a href="<c:url value='/admin'/>" class="rounded-lg px-3 py-2 hover:bg-white/5">Admin</a></c:if>
                     <form action="<c:url value='/auth/logout'/>" method="post" class="mt-2">
-                        <input type="hidden" name="_csrf" value="<c:out value='${csrfToken}'/>">
+                        <input type="hidden" name="_csrf" value="${csrfToken}">
                         <button class="w-full rounded-lg border border-white/10 px-3 py-2 text-left">Sign out</button>
                     </form>
                 </c:if>

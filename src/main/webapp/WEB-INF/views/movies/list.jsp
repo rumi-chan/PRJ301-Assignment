@@ -4,6 +4,26 @@
     <jsp:param name="title" value="Movies"/>
     <jsp:param name="active" value="movies"/>
 </jsp:include>
+
+<c:if test="${not empty banners}">
+    <section class="relative mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <c:forEach var="b" items="${banners}">
+                <a href="<c:out value='${not empty b.targetUrl ? b.targetUrl : "#"}'/>" class="group relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 shadow-2xl transition hover:scale-[1.02] hover:border-rose-500/50 block">
+                    <img src="<c:out value='${b.imageUrl}'/>" alt="<c:out value='${b.title}'/>" class="h-56 w-full object-cover transition duration-500 group-hover:scale-105 opacity-80">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-6 flex flex-col justify-end">
+                        <span class="w-fit rounded-full bg-rose-600/80 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white backdrop-blur-md">Featured Promo</span>
+                        <h3 class="mt-2 text-xl font-black text-white group-hover:text-rose-400 transition"><c:out value="${b.title}"/></h3>
+                        <c:if test="${not empty b.subtitle}">
+                            <p class="mt-1 text-xs text-zinc-300 line-clamp-2"><c:out value="${b.subtitle}"/></p>
+                        </c:if>
+                    </div>
+                </a>
+            </c:forEach>
+        </div>
+    </section>
+</c:if>
+
 <section class="relative overflow-hidden border-b border-white/5">
     <div class="absolute inset-0 bg-gradient-to-r from-rose-950/35 via-transparent to-amber-950/20"></div>
     <div class="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
@@ -53,8 +73,8 @@
     <c:choose>
         <c:when test="${not empty movies}">
             <div class="grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                <c:forEach var="movie" items="${movies}">
-                    <c:set var="movie" value="${movie}" scope="request"/>
+                <c:forEach var="m" items="${movies}">
+                    <c:set var="movie" value="${m}" scope="request"/>
                     <jsp:include page="/WEB-INF/views/shared/movie-card.jsp"/>
                 </c:forEach>
             </div>

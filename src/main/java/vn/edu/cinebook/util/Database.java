@@ -30,13 +30,18 @@ public final class Database {
         String user = setting("cinebook.db.user", "CINEBOOK_DB_USER", "user", null);
         String password = setting("cinebook.db.password", "CINEBOOK_DB_PASSWORD", "password", null);
         Connection connection;
-        if (user == null && url.toLowerCase().contains("integratedsecurity=true")) {
-            connection = DriverManager.getConnection(url);
-        } else if (user == null || password == null) {
+        try {
+            if (user != null && !user.isBlank() && password != null) {
+                connection = DriverManager.getConnection(url, user, password);
+            } else if (url.toLowerCase().contains("integratedsecurity=true")) {
+                connection = DriverManager.getConnection(url);
+            } else {
+                String fallbackUrl = url + (url.endsWith(";") ? "" : ";") + "integratedSecurity=true";
+                connection = DriverManager.getConnection(fallbackUrl);
+            }
+        } catch (SQLException ex) {
             throw new SQLException(
-                    "Set CINEBOOK_DB_USER and CINEBOOK_DB_PASSWORD, or configure integratedSecurity=true.");
-        } else {
-            connection = DriverManager.getConnection(url, user, password);
+                    "Không thể kết nối vào SQL Server (Database 'CineBook'). Vui lòng kiểm tra file cấu hình 'src/main/resources/cinebook-local.properties' (Tài khoản/Mật khẩu hoặc Windows Authentication). Lỗi chi tiết từ SQL Server: " + ex.getMessage(), ex);
         }
         configureSqlServerSession(connection);
         return connection;

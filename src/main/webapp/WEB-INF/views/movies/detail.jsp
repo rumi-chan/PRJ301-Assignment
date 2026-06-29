@@ -8,12 +8,13 @@
 <section class="relative overflow-hidden border-b border-white/10">
     <c:if test="${not empty movie.backdropUrl}">
         <img src="<c:out value='${movie.backdropUrl}'/>" alt="" class="absolute inset-0 h-full w-full object-cover opacity-20">
+        <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent"></div>
     </c:if>
-    <div class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/90 to-zinc-950/55"></div>
-    <div class="relative mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[220px_1fr] lg:px-8 lg:py-20">
-        <div class="mx-auto w-48 overflow-hidden rounded-2xl bg-zinc-900 poster-shadow md:mx-0 md:w-full">
-            <c:choose>
-                <c:when test="${not empty movie.posterUrl}"><img src="<c:out value='${movie.posterUrl}'/>" alt="<c:out value='${movie.title}'/> poster" class="aspect-[2/3] h-full w-full object-cover"></c:when>
+    <div class="relative mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
+        <div class="grid gap-8 md:grid-cols-[280px_1fr]">
+            <div class="overflow-hidden rounded-2xl bg-zinc-900 poster-shadow">
+                <c:choose>
+                    <c:when test="${not empty movie.posterUrl}"><img src="<c:out value='${movie.posterUrl}'/>" alt="<c:out value='${movie.title}'/> poster" class="aspect-[2/3] h-full w-full object-cover"></c:when>
                 <c:otherwise><div class="grid aspect-[2/3] place-items-center bg-gradient-to-br from-zinc-800 to-rose-950 p-6 text-center text-xl font-black text-zinc-500"><c:out value="${movie.title}"/></div></c:otherwise>
             </c:choose>
         </div>
@@ -45,6 +46,9 @@
                     <form action="<c:url value='/profile/watchlist'/>" method="post">
                         <input type="hidden" name="_csrf" value="<c:out value='${csrfToken}'/>">
                         <input type="hidden" name="movieId" value="<c:out value='${movie.id}'/>">
+                        <c:if test="${inWatchlist}">
+                            <input type="hidden" name="_method" value="DELETE">
+                        </c:if>
                         <button class="rounded-xl border border-white/15 px-6 py-3 font-black hover:bg-white/5">${inWatchlist ? '✓ In watchlist' : '+ Watchlist'}</button>
                     </form>
                 </c:if>

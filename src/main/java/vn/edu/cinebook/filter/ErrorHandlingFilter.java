@@ -30,6 +30,9 @@ public class ErrorHandlingFilter implements Filter {
         } catch (RuntimeException exception) {
             handle((HttpServletRequest) request, (HttpServletResponse) response,
                     500, "An unexpected error occurred.", exception);
+        } catch (Exception exception) {
+            handle((HttpServletRequest) request, (HttpServletResponse) response,
+                    500, "An unexpected error occurred.", exception);
         }
     }
 

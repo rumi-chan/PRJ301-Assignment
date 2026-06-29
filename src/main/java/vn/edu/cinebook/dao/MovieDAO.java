@@ -13,4 +13,14 @@ public interface MovieDAO {
     Optional<Movie> findById(long id);
 
     List<String> listGenres();
+
+    List<Movie> findAllAdmin(String query);
+
+    List<vn.edu.cinebook.model.Genre> listAllGenres();
+
+    long insert(Movie movie, List<Integer> genreIds, List<MovieFormat> formats);
+
+    void update(Movie movie, List<Integer> genreIds, List<MovieFormat> formats);
+
+    void delete(long id);
 }
