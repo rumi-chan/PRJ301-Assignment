@@ -61,8 +61,8 @@
         <h2 class="text-2xl font-black">About the movie</h2>
         <dl class="mt-6 divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/[.025] px-5">
             <div class="grid gap-2 py-4 sm:grid-cols-[140px_1fr]"><dt class="text-sm text-zinc-500">Director</dt><dd class="font-semibold"><c:out value="${empty movie.director ? 'To be announced' : movie.director}"/></dd></div>
-            <div class="grid gap-2 py-4 sm:grid-cols-[140px_1fr]"><dt class="text-sm text-zinc-500">Cast</dt><dd class="font-semibold"><c:out value="${empty movie.castNames ? movie.cast : movie.castNames}"/></dd></div>
-            <div class="grid gap-2 py-4 sm:grid-cols-[140px_1fr]"><dt class="text-sm text-zinc-500">Language</dt><dd class="font-semibold"><c:out value="${empty movie.language ? 'Original language' : movie.language}"/></dd></div>
+            <div class="grid gap-2 py-4 sm:grid-cols-[140px_1fr]"><dt class="text-sm text-zinc-500">Cast</dt><dd class="font-semibold"><c:out value="${empty movie.cast ? 'To be announced' : movie.cast}"/></dd></div>
+            <div class="grid gap-2 py-4 sm:grid-cols-[140px_1fr]"><dt class="text-sm text-zinc-500">Language</dt><dd class="font-semibold">Original language</dd></div>
         </dl>
         <c:if test="${not empty movie.trailerUrl}">
             <div id="trailer" class="mt-10 scroll-mt-24">

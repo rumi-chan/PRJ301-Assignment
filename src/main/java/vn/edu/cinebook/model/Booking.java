@@ -11,6 +11,7 @@ public record Booking(
         BookingStatus status,
         PaymentStatus paymentStatus,
         String movieTitle,
+        String moviePosterUrl,
         String cinemaName,
         String auditoriumName,
         Instant showtime,
@@ -29,6 +30,7 @@ public record Booking(
     public BookingStatus getStatus() { return status; }
     public PaymentStatus getPaymentStatus() { return paymentStatus; }
     public String getMovieTitle() { return movieTitle; }
+    public String getMoviePosterUrl() { return moviePosterUrl; }
     public String getCinemaName() { return cinemaName; }
     public String getAuditoriumName() { return auditoriumName; }
     public Instant getShowtime() { return showtime; }

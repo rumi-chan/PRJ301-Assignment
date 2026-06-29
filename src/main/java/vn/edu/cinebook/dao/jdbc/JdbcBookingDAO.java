@@ -636,7 +636,8 @@ public class JdbcBookingDAO implements BookingDAO {
                                 CASE WHEN b.status IN ('PAID','USED') THEN 'SUCCEEDED'
                                      WHEN b.status = 'CANCELLED' THEN 'CANCELLED'
                                      ELSE 'PENDING' END) AS payment_status,
-                       m.title AS movie_title, c.name AS cinema_name, a.name AS auditorium_name,
+                       m.title AS movie_title, m.poster_url AS movie_poster_url,
+                       c.name AS cinema_name, a.name AS auditorium_name,
                        sh.starts_at,
                        (SELECT STRING_AGG(bs.seat_label_snapshot, ', ')
                                    WITHIN GROUP (ORDER BY bs.seat_label_snapshot)
@@ -662,6 +663,7 @@ public class JdbcBookingDAO implements BookingDAO {
                 BookingStatus.valueOf(result.getString("status")),
                 PaymentStatus.valueOf(result.getString("payment_status")),
                 result.getString("movie_title"),
+                result.getString("movie_poster_url"),
                 result.getString("cinema_name"),
                 result.getString("auditorium_name"),
                 result.getTimestamp("starts_at").toInstant(),

@@ -44,7 +44,7 @@
                         <div class="mt-5 flex flex-wrap gap-3">
                             <c:set var="cinemaHasShows" value="false"/>
                             <c:forEach var="showtime" items="${showtimes}">
-                                <c:if test="${showtime.cinemaId == cinema.id || showtime.cinema.id == cinema.id}">
+                                <c:if test="${showtime.cinemaId == cinema.id}">
                                     <c:set var="cinemaHasShows" value="true"/>
                                     <c:url var="seatUrl" value="/booking/seats"><c:param name="showtimeId" value="${showtime.id}"/></c:url>
                                     <a href="${seatUrl}" class="group min-w-28 rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-center hover:border-rose-500/60 hover:bg-rose-500/10">
