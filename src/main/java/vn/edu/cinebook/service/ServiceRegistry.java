@@ -15,10 +15,11 @@ public final class ServiceRegistry {
     private static final AnalyticsDAO ANALYTICS_DAO = new JdbcAnalyticsDAO();
     private static final BannerDAO BANNERS = new JdbcBannerDAO();
     private static final WatchlistDAO WATCHLISTS = new JdbcWatchlistDAO();
+    private static final AuditoriumDAO AUDITORIUMS = new JdbcAuditoriumDAO();
     private static final PricingService PRICING = new PricingService();
 
     public static final AuthService AUTH = new AuthService(USERS);
-    public static final CatalogService CATALOG = new CatalogService(MOVIES, CINEMAS, SHOWTIMES, BANNERS, WATCHLISTS);
+    public static final CatalogService CATALOG = new CatalogService(MOVIES, CINEMAS, SHOWTIMES, BANNERS, WATCHLISTS, AUDITORIUMS);
     public static final BookingService BOOKING =
             new BookingService(BOOKINGS, COMBOS, PROMOTIONS, PRICING);
     public static final ReviewService REVIEW = new ReviewService(REVIEWS, BOOKINGS);

@@ -21,7 +21,7 @@
                                 <thead class="bg-black/20 text-xs uppercase tracking-wider text-zinc-500"><tr><c:forEach var="column" items="${columns}"><th class="px-5 py-4 font-bold"><c:out value="${column.label}"/></th></c:forEach><th class="px-5 py-4 text-right font-bold">Actions</th></tr></thead>
                                 <tbody class="divide-y divide-white/5">
                                     <c:forEach var="item" items="${items}">
-                                        <tr class="hover:bg-white/[.025]"><c:forEach var="column" items="${columns}"><td class="max-w-xs truncate px-5 py-4 text-zinc-300"><c:out value="${item[column.key]}"/></td></c:forEach><td class="whitespace-nowrap px-5 py-4 text-right"><a href="?action=edit&id=<c:out value='${item.id}'/>" class="font-bold text-sky-400 hover:text-sky-300">Edit</a><c:if test="${param.readOnly != 'true'}"><button type="button" data-confirm="Delete this record?" class="ml-4 font-bold text-rose-400 hover:text-rose-300">Delete</button></c:if></td></tr>
+                                        <tr class="hover:bg-white/[.025]"><c:forEach var="column" items="${columns}"><td class="max-w-xs truncate px-5 py-4 text-zinc-300"><c:out value="${item[column.key]}"/></td></c:forEach><td class="whitespace-nowrap px-5 py-4 text-right"><a href="?action=edit&id=<c:out value='${item.id}'/>" class="font-bold text-sky-400 hover:text-sky-300">Edit</a><c:if test="${param.readOnly != 'true'}"><button type="button" data-id="<c:out value='${item.id}'/>" data-confirm="Delete this record?" class="ml-4 font-bold text-rose-400 hover:text-rose-300 delete-btn">Delete</button></c:if></td></tr>
                                     </c:forEach>
                                 </tbody>
                             </table>
@@ -36,4 +36,42 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteBtns = document.querySelectorAll('.delete-btn');
+    deleteBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm(this.getAttribute('data-confirm') || 'Are you sure?')) {
+                const id = this.getAttribute('data-id');
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = ''; // current URL
+                
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                form.appendChild(actionInput);
+                
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = id;
+                form.appendChild(idInput);
+                
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_csrf';
+                csrfInput.value = '<c:out value="${csrfToken}"/>';
+                form.appendChild(csrfInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    });
+});
+</script>
+
 <jsp:include page="/WEB-INF/views/shared/footer.jsp"/>
