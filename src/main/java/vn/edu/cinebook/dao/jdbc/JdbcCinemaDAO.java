@@ -1,6 +1,7 @@
 package vn.edu.cinebook.dao.jdbc;
 
 import vn.edu.cinebook.dao.CinemaDAO;
+import vn.edu.cinebook.model.Auditorium;
 import vn.edu.cinebook.model.Cinema;
 import vn.edu.cinebook.util.Database;
 
@@ -58,6 +59,37 @@ public class JdbcCinemaDAO implements CinemaDAO {
                 cities.add(result.getString(1));
             }
             return cities;
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    @Override
+    public List<Auditorium> listActiveAuditoriums() {
+        String sql = """
+                SELECT a.auditorium_id AS id, a.cinema_id, c.name AS cinema_name,
+                       a.name, a.auditorium_type, a.capacity, a.is_active
+                FROM auditoriums a
+                JOIN cinemas c ON c.cinema_id = a.cinema_id
+                WHERE a.is_active = 1 AND c.is_active = 1
+                ORDER BY c.name, a.name
+                """;
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet result = statement.executeQuery()) {
+            List<Auditorium> auditoriums = new ArrayList<>();
+            while (result.next()) {
+                auditoriums.add(new Auditorium(
+                        result.getLong("id"),
+                        result.getLong("cinema_id"),
+                        result.getString("cinema_name"),
+                        result.getString("name"),
+                        result.getString("auditorium_type"),
+                        result.getInt("capacity"),
+                        result.getBoolean("is_active")
+                ));
+            }
+            return auditoriums;
         } catch (SQLException exception) {
             throw JdbcSupport.databaseError(exception);
         }

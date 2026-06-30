@@ -53,6 +53,48 @@ public class BookingService {
         return comboDAO.findActive();
     }
 
+    public List<Combo> adminCombos() {
+        return comboDAO.findAllAdmin();
+    }
+
+    public Combo combo(long id) {
+        return comboDAO.findAdminById(id)
+                .orElseThrow(() -> new AppException(404, "Combo not found."));
+    }
+
+    public long createCombo(Combo combo) {
+        return comboDAO.insert(combo);
+    }
+
+    public void updateCombo(Combo combo) {
+        comboDAO.update(combo);
+    }
+
+    public void deleteCombo(long id) {
+        comboDAO.delete(id);
+    }
+
+    public List<Promotion> adminPromotions() {
+        return promotionDAO.findAllAdmin();
+    }
+
+    public Promotion adminPromotion(long id) {
+        return promotionDAO.findById(id)
+                .orElseThrow(() -> new AppException(404, "Promotion not found."));
+    }
+
+    public long createPromotion(Promotion promotion) {
+        return promotionDAO.insert(promotion);
+    }
+
+    public void updatePromotion(Promotion promotion) {
+        promotionDAO.update(promotion);
+    }
+
+    public void deletePromotion(long id) {
+        promotionDAO.delete(id);
+    }
+
     public List<ComboSelection> comboSelections(List<Long> ids, List<Integer> quantities) {
         if (ids == null || quantities == null || ids.size() != quantities.size()) {
             return List.of();

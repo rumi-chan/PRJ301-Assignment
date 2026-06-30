@@ -10,17 +10,20 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import vn.edu.cinebook.util.AppException;
 
 public class JdbcShowtimeDAO implements ShowtimeDAO {
     private static final String SELECT = """
             SELECT s.showtime_id AS id, s.movie_id, m.title AS movie_title,
                    c.cinema_id, c.name AS cinema_name,
                    a.auditorium_id, a.name AS auditorium_name, s.format, s.starts_at, s.ends_at,
-                   s.base_price,
+                   s.sales_open_at, s.base_price, s.status,
                    (SELECT COUNT(*) FROM seats all_seats WHERE all_seats.auditorium_id = a.auditorium_id
                        AND all_seats.is_active = 1
                        AND NOT EXISTS (
@@ -70,7 +73,7 @@ public class JdbcShowtimeDAO implements ShowtimeDAO {
 
     @Override
     public Optional<Showtime> findById(long id) {
-        String sql = SELECT + " WHERE s.showtime_id = ? AND s.status = 'SCHEDULED'";
+        String sql = SELECT + " WHERE s.showtime_id = ?";
         try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, id);
@@ -80,6 +83,85 @@ public class JdbcShowtimeDAO implements ShowtimeDAO {
         } catch (SQLException exception) {
             throw JdbcSupport.databaseError(exception);
         }
+    }
+
+    @Override
+    public List<Showtime> findAllAdmin() {
+        String sql = SELECT + " ORDER BY s.starts_at DESC, c.name, a.name";
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet result = statement.executeQuery()) {
+            List<Showtime> showtimes = new ArrayList<>();
+            while (result.next()) {
+                showtimes.add(map(result));
+            }
+            return showtimes;
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    @Override
+    public long insert(Showtime showtime) {
+        String sql = """
+                INSERT INTO showtimes (movie_id, auditorium_id, starts_at, ends_at, sales_open_at,
+                                       format, base_price, audio_language, subtitle_language,
+                                       status, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, N'Vietnamese', N'Vietnamese',
+                        ?, SYSUTCDATETIME(), SYSUTCDATETIME())
+                """;
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            bindWrite(statement, showtime);
+            statement.executeUpdate();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (!keys.next()) throw new AppException(500, "Showtime created but ID not returned.");
+                return keys.getLong(1);
+            }
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    @Override
+    public void update(Showtime showtime) {
+        String sql = """
+                UPDATE showtimes
+                SET movie_id = ?, auditorium_id = ?, starts_at = ?, ends_at = ?, sales_open_at = ?,
+                    format = ?, base_price = ?, status = ?, updated_at = SYSUTCDATETIME()
+                WHERE showtime_id = ?
+                """;
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            bindWrite(statement, showtime);
+            statement.setLong(9, showtime.id());
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    @Override
+    public void delete(long id) {
+        String sql = "UPDATE showtimes SET status = 'CANCELLED', updated_at = SYSUTCDATETIME() WHERE showtime_id = ?";
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw JdbcSupport.databaseError(exception);
+        }
+    }
+
+    private void bindWrite(PreparedStatement statement, Showtime showtime) throws SQLException {
+        statement.setLong(1, showtime.movieId());
+        statement.setLong(2, showtime.auditoriumId());
+        statement.setTimestamp(3, Timestamp.from(showtime.startsAt()));
+        statement.setTimestamp(4, Timestamp.from(showtime.endsAt()));
+        statement.setTimestamp(5, Timestamp.from(showtime.salesOpenAt()));
+        statement.setString(6, showtime.format().getLabel());
+        statement.setBigDecimal(7, showtime.basePrice());
+        statement.setString(8, showtime.status());
     }
 
     private Showtime map(ResultSet result) throws SQLException {
@@ -94,7 +176,9 @@ public class JdbcShowtimeDAO implements ShowtimeDAO {
                 JdbcSupport.format(result.getString("format")),
                 result.getTimestamp("starts_at").toInstant(),
                 result.getTimestamp("ends_at").toInstant(),
+                result.getTimestamp("sales_open_at").toInstant(),
                 result.getBigDecimal("base_price"),
+                result.getString("status"),
                 result.getInt("available_seats")
         );
     }

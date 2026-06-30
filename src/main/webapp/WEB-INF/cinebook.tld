@@ -17,4 +17,9 @@
         <function-class>vn.edu.cinebook.util.DisplayUtil</function-class>
         <function-signature>java.lang.String dateTime(java.time.Instant)</function-signature>
     </function>
+    <function>
+        <name>htmlDateTime</name>
+        <function-class>vn.edu.cinebook.util.DisplayUtil</function-class>
+        <function-signature>java.lang.String htmlDateTime(java.time.Instant)</function-signature>
+    </function>
 </taglib>
