@@ -5,43 +5,112 @@ SQL Server, Maven, Tomcat 10.1, Tailwind CSS CDN, and vanilla JavaScript.
 
 ## Project status
 
-- [x] Migrated the original NetBeans Ant project to a Maven WAR project.
-- [x] Added registration, login, logout, BCrypt passwords, CUSTOMER/ADMIN roles,
+- [x] Maven WAR project for Java 17, Jakarta Servlets, JSP, and Tomcat 10.1.
+- [x] Customer registration, login, logout, BCrypt passwords, role-based access,
       servlet filters, CSRF validation, and protected JSP pages.
-- [x] Added movie lists, movie details, trailers, search, genre/format filters,
-      and cinema city filtering.
-- [x] Added showtime selection and STANDARD, VIP, and COUPLE seat maps.
-- [x] Added transactional seven-minute SQL Server seat holds.
-- [x] Added food and beverage combo selection.
-- [x] Added promotion codes, 8% demo tax, and a 10,000 VND service fee.
-- [x] Added simulated payment success, failure, and cancellation.
-- [x] Added booking history and electronic booking-code tickets.
-- [x] Added ADMIN-protected navigation and screen scaffolds for UC11-UC20.
-- [x] Added profile scaffolds for reviews and watchlists.
-- [x] Added SQL Server schema, demo operational seed data, and a Lotte Cinema
-      VN real movie catalog import.
-- [x] Added the Obsidian-compatible LLM project wiki under `knowledge/`.
-- [x] Built `target/cinebook.war`.
+- [x] Movie catalog with details, trailers, search, genre and format filters,
+      city filtering, and a Lotte Cinema VN movie import.
+- [x] Showtime selection, STANDARD/VIP/COUPLE seat maps, and transactional
+      seven-minute SQL Server seat holds.
+- [x] Food and beverage combo selection, promotion codes, demo tax, and service
+      fee calculation.
+- [x] Booking history and electronic booking-code tickets.
+- [x] Admin navigation and scaffold screens for management workflows.
+- [x] SQL Server schema, demo seed data, and setup documentation.
+
+## Use cases
+
+| UC | Use case | Main route |
+|---|---|---|
+| UC1 | Select theater and showtime by movie | `/booking/showtimes` |
+| UC2 | Display and select available, sold, VIP, and couple seats | `/booking/seats` |
+| UC3 | Add food and beverage combos to a booking | `/booking/combos` |
+| UC4 | Calculate ticket, combo, tax, fee, and promotion totals | `/checkout` |
+| UC5 | Hold selected seats temporarily during booking | `/api/seat-holds` |
+| UC6 | View Now Showing and Coming Soon movie lists | `/movies` |
+| UC7 | View movie summary, director, cast, and trailer | `/movies/{id}` |
+| UC8 | Search movies by name | `/movies?q=...` |
+| UC9 | Filter movies by genre or format | `/movies?genre=...&format=...` |
+| UC10 | Search and filter cinemas by city or region | `/cinemas` |
+| UC11 | Add, update, and delete movie information | `/admin/movies` |
+| UC12 | Manage cinemas and showrooms | `/admin/cinemas`, `/admin/showrooms` |
+| UC13 | Create and allocate showtimes for screening rooms | `/admin/showtimes` |
+| UC14 | Manage combo catalog and pricing | `/admin/combos` |
+| UC15 | Set up static seat layouts for screening rooms | `/admin/seat-layouts`, `/admin/seats/view` |
+| UC16 | View revenue statistics by day, movie, or theater | `/admin`, `/admin/analytics` |
+| UC17 | View, lock, and unlock customer accounts | `/admin/accounts` |
+| UC18 | Manage discount codes and promotions | `/admin/promotions` |
+| UC19 | Moderate review content | `/admin/reviews` |
+| UC20 | Manage homepage banner and slider advertisements | `/admin/banners` |
+| UC21 | Apply discount codes and complete the current checkout flow | `/checkout` |
+| UC22 | View booking history and ticket status | `/profile/bookings` |
+| UC23 | Rate and review watched movies | `/reviews`, `/profile/reviews` |
+| UC24 | Create and manage a personal watchlist | `/profile/watchlist` |
+| UC25 | Display electronic ticket codes for entry | `/tickets/{code}` |
+
+UC21 is limited to the current checkout boundary. A real external payment
+gateway is intentionally not required for this milestone.
+
+## Sitemap
+
+### Public pages
+
+- `/` - redirects to the movie catalog.
+- `/movies` - movie catalog, Now Showing, Coming Soon, search, and filters.
+- `/movies/{id}` - movie details, trailer, showtimes, and reviews.
+- `/cinemas` - cinema list and city/region filter.
+- `/login` or `/auth/login` - customer and admin sign in.
+- `/register` or `/auth/register` - customer registration.
+- `/logout` or `/auth/logout` - sign out.
+
+### Booking flow
+
+- `/booking/showtimes` - choose cinema, date, and showtime for a movie.
+- `/booking/seats` - choose STANDARD, VIP, or COUPLE seats.
+- `/api/seat-holds` - JSON endpoint for creating, updating, and clearing seat holds.
+- `/booking/combos` - choose food and beverage combos.
+- `/checkout` - review pricing, apply promotion codes, and finalize the booking flow.
+- `/tickets/{code}` - electronic ticket / booking code page.
+
+### Customer profile
+
+- `/profile/bookings` - booking history and ticket status.
+- `/profile/watchlist` - saved movies.
+- `/profile/reviews` - customer review history.
+- `/reviews` - review submission endpoint.
+
+### Admin pages
+
+- `/admin` - dashboard.
+- `/admin/analytics` - revenue statistics.
+- `/admin/movies` - movie management.
+- `/admin/cinemas` - cinema management.
+- `/admin/showrooms` - showroom management.
+- `/admin/showtimes` - showtime management.
+- `/admin/combos` - combo management.
+- `/admin/seat-layouts` - seat layout list.
+- `/admin/seats/view` - seat layout editor.
+- `/admin/accounts` - customer account management.
+- `/admin/promotions` - promotion management.
+- `/admin/reviews` - review moderation.
+- `/admin/banners` - homepage banner management.
 
 ## Still to do
 
-These are intentionally outside the completed starter-template slice:
-
-- [ ] Implement persistence and CRUD actions behind the admin scaffold screens:
-      movies, cinemas, showrooms, showtimes, combos, seat layouts, accounts,
-      analytics, promotions, reviews, and banners.
-- [ ] Implement persistent customer watchlist actions.
-- [ ] Implement watched-movie rating and review submission.
-- [ ] Add a real QR-code library if QR tickets are required. Booking codes
-      already satisfy the current electronic-ticket flow.
-- [ ] Replace simulated payment with a real sandbox gateway if required.
-- [ ] Run the complete booking flow in two browsers using the final team
-      database credentials.
-- [ ] Add more SQL Server integration tests for payment idempotency, expired
-      checkout, and booking-history snapshots.
-- [ ] Crawl/import real cinemas, rooms, showtimes, prices, and seat
-      availability if the project must go beyond the current real movie
-      catalog plus demo booking schedule.
+- [ ] Finish CRUD actions behind the remaining admin screens: movies, cinemas,
+      showrooms, showtimes, combos, seat layouts, accounts, analytics,
+      promotions, reviews, and banners.
+- [ ] Persist customer watchlists, watched-movie ratings, and review
+      submissions.
+- [ ] Add QR-code ticket generation if the final requirements need it. Booking
+      codes already support the current electronic-ticket flow.
+- [ ] Run the booking flow in two browsers using the final team database
+      credentials.
+- [ ] Add more SQL Server integration tests for seat holds, expired checkout,
+      and booking-history snapshots.
+- [ ] Import real cinemas, rooms, showtimes, prices, and seat availability if
+      the project must go beyond the current real movie catalog and demo
+      schedule.
 - [ ] Set secure production cookies and HTTPS before deployment outside a local
       classroom environment.
 
@@ -618,8 +687,6 @@ assign Tomcat 10.1, and run the project.
 - [ ] Select seats and confirm the seven-minute countdown appears.
 - [ ] Add optional combos.
 - [ ] Try promotion code `WELCOME10`, `STUDENT50`, or `WEEKDAY15`.
-- [ ] Simulate payment failure and retry.
-- [ ] Simulate payment success.
 - [ ] Open booking history and the generated ticket.
 - [ ] Sign in as ADMIN and open every admin scaffold.
 - [ ] Open the seat map in two browsers and verify only one browser can hold the
@@ -736,15 +803,3 @@ mvn test
 
 Use a disposable development database or test login.
 
-## LLM wiki checklist
-
-- [ ] Start reading at `knowledge/wiki/index.md`.
-- [ ] Follow the repository rules in the root `AGENTS.md`.
-- [ ] After completing a feature, update its architecture/domain pages.
-- [ ] Update `knowledge/wiki/index.md`.
-- [ ] Append an ingest entry to `knowledge/wiki/log.md`.
-- [ ] Run the manual broken-link, orphan-page, contradiction, and UC coverage
-      checks described in `AGENTS.md`.
-
-The immutable source documents are under `knowledge/raw/`. Generated,
-LLM-maintained project knowledge is under `knowledge/wiki/`.
