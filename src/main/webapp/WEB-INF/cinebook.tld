@@ -9,17 +9,17 @@
     <uri>/WEB-INF/cinebook.tld</uri>
     <function>
         <name>money</name>
-        <function-class>vn.edu.cinebook.util.DisplayUtil</function-class>
+        <function-class>cinebook.util.DisplayUtil</function-class>
         <function-signature>java.lang.String money(java.math.BigDecimal)</function-signature>
     </function>
     <function>
         <name>dateTime</name>
-        <function-class>vn.edu.cinebook.util.DisplayUtil</function-class>
+        <function-class>cinebook.util.DisplayUtil</function-class>
         <function-signature>java.lang.String dateTime(java.time.Instant)</function-signature>
     </function>
     <function>
         <name>htmlDateTime</name>
-        <function-class>vn.edu.cinebook.util.DisplayUtil</function-class>
+        <function-class>cinebook.util.DisplayUtil</function-class>
         <function-signature>java.lang.String htmlDateTime(java.time.Instant)</function-signature>
     </function>
 </taglib>
