@@ -27,7 +27,8 @@
     const totalNodes = document.querySelectorAll("[data-seat-total]");
     const countdownNodes = document.querySelectorAll("[data-hold-countdown]");
     const statusNode = document.querySelector("[data-hold-status]");
-    const submitButton = form?.querySelector("[data-seat-submit]");
+    const submitButton = form?.querySelector("[data-seat-submit]")
+        || document.querySelector("[data-seat-submit]");
 
     const matchingPair = (seat) => {
         const pairId = seat.dataset.pairId;
@@ -93,9 +94,9 @@
             const data = await response.json().catch(() => ({}));
             if (version !== requestVersion) return;
             if (!response.ok) {
-                const message = response.status === 409
+                const message = data.error || data.message || (response.status === 409
                     ? "One of those seats was just taken. Please choose again."
-                    : (data.error || data.message || "We could not hold those seats. Please retry.");
+                    : "We could not hold those seats. Please retry.");
                 if (Array.isArray(data.unavailableSeatIds)) {
                     data.unavailableSeatIds.map(String).forEach((id) => selected.delete(id));
                 }
@@ -106,6 +107,10 @@
             if (Array.isArray(data.seatIds)) {
                 selected.clear();
                 data.seatIds.map(String).forEach((id) => selected.add(id));
+            }
+            if (selected.size === 0) {
+                holdToken = "";
+                expiresAt = null;
             }
             setStatus(selected.size ? "Seats held. Complete your booking before the timer ends." : "Selection cleared.", "success");
         } catch (error) {

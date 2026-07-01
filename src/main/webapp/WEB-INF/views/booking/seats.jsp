@@ -67,7 +67,7 @@
                 </div>
                 <p data-hold-status class="mb-4 text-sm text-zinc-500">Choose one or more available seats.</p>
                 <button type="button" onclick="document.querySelector('[data-seat-form]').requestSubmit()" data-seat-submit disabled class="w-full rounded-xl bg-rose-600 px-5 py-3 font-black text-white hover:bg-rose-500 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-600">Continue to combos</button>
-                <p class="mt-3 text-center text-xs leading-5 text-zinc-600">Couple seats are selected as a pair. Seats are confirmed only after payment.</p>
+                <p class="mt-3 text-center text-xs leading-5 text-zinc-600">Couple seats are selected as a pair. Seats are confirmed when the booking is finalized.</p>
             </div>
         </aside>
     </div>

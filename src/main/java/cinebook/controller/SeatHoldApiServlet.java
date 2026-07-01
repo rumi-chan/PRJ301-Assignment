@@ -34,14 +34,18 @@ public class SeatHoldApiServlet extends HttpServlet {
 
         SeatHoldResult hold = ServiceRegistry.BOOKING.hold(
                 showtimeId, seatIds, token, user == null ? null : user.id(), sessionKey);
-        BookingDraft draft = new BookingDraft(
-                hold.holdToken(), showtimeId, List.of(), null);
-        request.getSession().setAttribute("bookingDraft", draft);
+        if (hold.seats().isEmpty()) {
+            request.getSession().removeAttribute("bookingDraft");
+        } else {
+            BookingDraft draft = new BookingDraft(
+                    hold.holdToken(), showtimeId, List.of(), null);
+            request.getSession().setAttribute("bookingDraft", draft);
+        }
 
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("holdToken", hold.holdToken());
+        result.put("holdToken", hold.seats().isEmpty() ? null : hold.holdToken());
         result.put("showtimeId", hold.showtimeId());
-        result.put("expiresAt", hold.expiresAt().toString());
+        result.put("expiresAt", hold.seats().isEmpty() ? null : hold.expiresAt().toString());
         result.put("seats", hold.seats().stream().map(seat -> Map.of(
                 "id", seat.id(),
                 "label", seat.label(),
