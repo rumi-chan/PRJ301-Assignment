@@ -1,21 +1,14 @@
 package vn.edu.cinebook.service;
 
-import vn.edu.cinebook.dao.BannerDAO;
-import vn.edu.cinebook.dao.CinemaDAO;
-import vn.edu.cinebook.dao.MovieDAO;
-import vn.edu.cinebook.dao.ShowtimeDAO;
-import vn.edu.cinebook.dao.WatchlistDAO;
-import vn.edu.cinebook.model.Banner;
-import vn.edu.cinebook.model.Cinema;
-import vn.edu.cinebook.model.Genre;
-import vn.edu.cinebook.model.Movie;
-import vn.edu.cinebook.model.MovieFormat;
-import vn.edu.cinebook.model.MovieStatus;
-import vn.edu.cinebook.model.Showtime;
+import vn.edu.cinebook.dao.*;
+import vn.edu.cinebook.dao.jdbc.JdbcSeatDAO;
+import vn.edu.cinebook.model.*;
 import vn.edu.cinebook.util.AppException;
 
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class CatalogService {
     private final MovieDAO movieDAO;
@@ -23,14 +16,17 @@ public class CatalogService {
     private final ShowtimeDAO showtimeDAO;
     private final BannerDAO bannerDAO;
     private final WatchlistDAO watchlistDAO;
+    private final AuditoriumDAO auditoriumDAO;
+    private final SeatDAO seatDAO = new JdbcSeatDAO();
 
     public CatalogService(MovieDAO movieDAO, CinemaDAO cinemaDAO, ShowtimeDAO showtimeDAO,
-                          BannerDAO bannerDAO, WatchlistDAO watchlistDAO) {
+                          BannerDAO bannerDAO, WatchlistDAO watchlistDAO, AuditoriumDAO auditoriumDAO) {
         this.movieDAO = movieDAO;
         this.cinemaDAO = cinemaDAO;
         this.showtimeDAO = showtimeDAO;
         this.bannerDAO = bannerDAO;
         this.watchlistDAO = watchlistDAO;
+        this.auditoriumDAO = auditoriumDAO;
     }
 
     public List<Movie> searchMovies(String status, String query, String genre, String format) {
@@ -122,6 +118,83 @@ public class CatalogService {
         }
     }
 
+    // ADMINISTRATIVE CINEMA METHODS
+    public List<Cinema> getAllCinemasForAdmin() {
+        return cinemaDAO.findAll();
+    }
+
+    public boolean addCinema(String name, String city, String district, String address, String phone, boolean isActive) {
+        String slug = generateSlug(name);
+        Cinema newCinema = new Cinema(0L, name, city, slug, district, address, phone, isActive);
+        return requireSuccess(cinemaDAO.insert(newCinema), "Cinema could not be created.");
+    }
+
+    public Cinema getCinemaById(long id) {
+        return cinemaDAO.findById(id).orElseThrow(() -> new AppException(404, "Cinema not found"));
+    }
+
+    public boolean updateCinema(long id, String name, String city, String district, String address, String phone, boolean isActive) {
+        String slug = generateSlug(name);
+        Cinema updatedCinema = new Cinema(id, name, city, slug, district, address, phone, isActive);
+        return requireSuccess(cinemaDAO.update(updatedCinema), "Cinema could not be updated.");
+    }
+
+    public boolean deleteCinema(long id) {
+        return requireSuccess(cinemaDAO.delete(id), "Cinema could not be archived.");
+    }
+
+    private String generateSlug(String input) {
+        if (input == null || input.isBlank()) {
+            return "";
+        }
+
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        String slug = pattern.matcher(normalized).replaceAll("").toLowerCase();
+
+        return slug.replaceAll("[^a-z0-9\\s-]", "").trim().replaceAll("\\s+", "-");
+    }
+
+    // ADMINISTRATIVE SHOWROOM/AUDITORIUM METHODS
+    public List<Auditorium> getAllShowroomsForAdmin() {
+        return auditoriumDAO.findAll();
+    }
+
+    public boolean addShowroom(long cinemaId, String name, String type, int capacity, boolean isActive) {
+        Auditorium newShowroom = new Auditorium(0L, cinemaId, name, type, capacity, isActive);
+        return requireSuccess(auditoriumDAO.insert(newShowroom), "Showroom could not be created.");
+    }
+
+    public Auditorium getShowroomById(long id) {
+        return auditoriumDAO.findById(id).orElseThrow(() -> new AppException(404, "Showroom not found"));
+    }
+
+    public boolean updateShowroom(long id, long cinemaId, String name, String type, int capacity, boolean isActive) {
+        Auditorium updatedShowroom = new Auditorium(id, cinemaId, name, type, capacity, isActive);
+        return requireSuccess(auditoriumDAO.update(updatedShowroom), "Showroom could not be updated.");
+    }
+
+    public boolean deleteShowroom(long id) {
+        return requireSuccess(auditoriumDAO.delete(id), "Showroom could not be archived.");
+    }
+
+    // SEAT LAYOUT METHODS
+    public void generateSeats(long auditoriumId) {
+        getShowroomById(auditoriumId);
+        seatDAO.resetToDefaultLayout(auditoriumId);
+    }
+
+    public void updateSeatTypes(java.util.Map<Long, String> updates) {
+        seatDAO.updateSeatTypes(updates);
+    }
+
+    private boolean requireSuccess(boolean success, String message) {
+        if (!success) {
+            throw new AppException(404, message);
+        }
+        return true;
+    }
+
     private MovieStatus parseStatus(String value) {
         if (value == null || value.isBlank() || "all".equalsIgnoreCase(value)) {
             return null;
@@ -138,10 +211,14 @@ public class CatalogService {
             return null;
         }
         return switch (value.trim().toUpperCase()) {
-            case "2D", "TWO_D" -> MovieFormat.TWO_D;
-            case "3D", "THREE_D" -> MovieFormat.THREE_D;
-            case "IMAX" -> MovieFormat.IMAX;
-            default -> throw new AppException(400, "Unknown movie format.");
+            case "2D", "TWO_D" ->
+                MovieFormat.TWO_D;
+            case "3D", "THREE_D" ->
+                MovieFormat.THREE_D;
+            case "IMAX" ->
+                MovieFormat.IMAX;
+            default ->
+                throw new AppException(400, "Unknown movie format.");
         };
     }
 }
