@@ -10,7 +10,9 @@ import java.util.Locale;
 public final class DisplayUtil {
     public static final ZoneId DISPLAY_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
     private static final DateTimeFormatter DATE_TIME =
-            DateTimeFormatter.ofPattern("EEE, dd MMM yyyy · HH:mm", Locale.ENGLISH).withZone(DISPLAY_ZONE);
+            DateTimeFormatter.ofPattern("EEE, dd MMM yyyy - HH:mm", Locale.ENGLISH).withZone(DISPLAY_ZONE);
+    private static final DateTimeFormatter HTML_DATE_TIME =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm").withZone(DISPLAY_ZONE);
 
     private DisplayUtil() {
     }
@@ -22,5 +24,9 @@ public final class DisplayUtil {
 
     public static String dateTime(Instant instant) {
         return instant == null ? "" : DATE_TIME.format(instant);
+    }
+
+    public static String htmlDateTime(Instant instant) {
+        return instant == null ? "" : HTML_DATE_TIME.format(instant);
     }
 }

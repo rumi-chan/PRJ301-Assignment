@@ -10,4 +10,14 @@ public interface ShowtimeDAO {
     List<Showtime> findForMovie(long movieId, Long cinemaId, LocalDate date);
 
     Optional<Showtime> findById(long id);
+
+    Optional<Showtime> findAdminById(long id);
+
+    List<Showtime> findAllAdmin();
+
+    long insert(Showtime showtime);
+
+    void update(Showtime showtime);
+
+    void delete(long id);
 }

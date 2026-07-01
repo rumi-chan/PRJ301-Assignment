@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @WebServlet({"/admin/movies", "/admin/movies/*"})
 public class AdminMovieServlet extends HttpServlet {
@@ -31,6 +33,8 @@ public class AdminMovieServlet extends HttpServlet {
             request.setAttribute("allGenres", ServiceRegistry.CATALOG.allGenres());
             request.setAttribute("allFormats", MovieFormat.values());
             request.setAttribute("allStatuses", MovieStatus.values());
+            request.setAttribute("selectedGenres", Collections.emptySet());
+            request.setAttribute("selectedFormats", Collections.emptySet());
             WebUtil.view(request, response, "admin/movie-form");
             return;
         }
@@ -42,6 +46,8 @@ public class AdminMovieServlet extends HttpServlet {
             request.setAttribute("allGenres", ServiceRegistry.CATALOG.allGenres());
             request.setAttribute("allFormats", MovieFormat.values());
             request.setAttribute("allStatuses", MovieStatus.values());
+            request.setAttribute("selectedGenres", new HashSet<>(movie.getGenres()));
+            request.setAttribute("selectedFormats", new HashSet<>(movie.getFormats()));
             WebUtil.view(request, response, "admin/movie-form");
             return;
         }
@@ -73,7 +79,11 @@ public class AdminMovieServlet extends HttpServlet {
             String director = Validation.required(request.getParameter("director"), "Director", 200);
             String cast = request.getParameter("cast");
             if (cast == null) cast = "";
-            int duration = Validation.positiveLong(request.getParameter("durationMinutes"), "Duration") > 600 ? 600 : (int) Long.parseLong(request.getParameter("durationMinutes"));
+            long durationValue = Validation.positiveLong(request.getParameter("durationMinutes"), "Duration");
+            if (durationValue > 600) {
+                throw new AppException(400, "Duration must be 600 minutes or less.");
+            }
+            int duration = (int) durationValue;
             String ageRating = Validation.required(request.getParameter("ageRating"), "Age rating", 20);
             LocalDate releaseDate = LocalDate.parse(Validation.required(request.getParameter("releaseDate"), "Release date", 20));
             String posterUrl = request.getParameter("posterUrl");
@@ -91,6 +101,12 @@ public class AdminMovieServlet extends HttpServlet {
             List<MovieFormat> formats = new ArrayList<>();
             if (formatParams != null) {
                 for (String fp : formatParams) formats.add(MovieFormat.valueOf(fp));
+            }
+            if (genreIds.isEmpty()) {
+                throw new AppException(400, "Select at least one genre.");
+            }
+            if (formats.isEmpty()) {
+                throw new AppException(400, "Select at least one format.");
             }
 
             String idParam = request.getParameter("id");
@@ -110,11 +126,88 @@ public class AdminMovieServlet extends HttpServlet {
         } catch (Exception ex) {
             String msg = ex instanceof AppException ae ? ae.getMessage() : "An error occurred saving the movie.";
             request.setAttribute("error", msg);
+            preserveMovieFormState(request);
             request.setAttribute("allGenres", ServiceRegistry.CATALOG.allGenres());
             request.setAttribute("allFormats", MovieFormat.values());
             request.setAttribute("allStatuses", MovieStatus.values());
             request.setAttribute("adminSection", "movies");
             WebUtil.view(request, response, "admin/movie-form");
         }
+    }
+
+    private void preserveMovieFormState(HttpServletRequest request) {
+        String idParam = request.getParameter("id");
+        Long id = null;
+        if (idParam != null && !idParam.isBlank()) {
+            try {
+                id = Long.parseLong(idParam);
+            } catch (NumberFormatException ignored) {
+                id = null;
+            }
+        }
+
+        MovieStatus status;
+        try {
+            status = MovieStatus.valueOf(request.getParameter("status"));
+        } catch (Exception ignored) {
+            status = MovieStatus.NOW_SHOWING;
+        }
+
+        Integer duration = null;
+        try {
+            duration = Integer.parseInt(request.getParameter("durationMinutes"));
+        } catch (NumberFormatException ignored) {
+            // Keep null so the form can fall back to its default.
+        }
+
+        LocalDate releaseDate = null;
+        try {
+            String releaseDateParam = request.getParameter("releaseDate");
+            if (releaseDateParam != null && !releaseDateParam.isBlank()) {
+                releaseDate = LocalDate.parse(releaseDateParam);
+            }
+        } catch (Exception ignored) {
+            releaseDate = null;
+        }
+
+        Set<String> selectedGenres = new HashSet<>();
+        String[] genreParams = request.getParameterValues("genreIds");
+        if (genreParams != null) {
+            for (String genreId : genreParams) {
+                selectedGenres.add(genreId);
+            }
+        }
+
+        Set<MovieFormat> selectedFormats = new HashSet<>();
+        String[] formatParams = request.getParameterValues("formats");
+        if (formatParams != null) {
+            for (String format : formatParams) {
+                try {
+                    selectedFormats.add(MovieFormat.valueOf(format));
+                } catch (IllegalArgumentException ignored) {
+                    // Invalid values are ignored for redisplay; validation has already failed.
+                }
+            }
+        }
+
+        request.setAttribute("movie", new Movie(
+                id == null ? 0 : id,
+                request.getParameter("title"),
+                request.getParameter("slug"),
+                request.getParameter("synopsis"),
+                request.getParameter("director"),
+                request.getParameter("cast"),
+                duration,
+                request.getParameter("ageRating"),
+                releaseDate,
+                request.getParameter("posterUrl"),
+                request.getParameter("backdropUrl"),
+                request.getParameter("trailerUrl"),
+                status,
+                Collections.emptyList(),
+                new ArrayList<>(selectedFormats)
+        ));
+        request.setAttribute("selectedGenres", selectedGenres);
+        request.setAttribute("selectedFormats", selectedFormats);
     }
 }

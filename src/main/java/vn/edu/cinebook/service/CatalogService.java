@@ -49,6 +49,10 @@ public class CatalogService {
         return cinemaDAO.listCities();
     }
 
+    public List<Auditorium> activeAuditoriums() {
+        return cinemaDAO.listActiveAuditoriums();
+    }
+
     public List<Showtime> showtimes(long movieId, Long cinemaId, LocalDate date) {
         movie(movieId);
         return showtimeDAO.findForMovie(movieId, cinemaId, date);
@@ -56,6 +60,28 @@ public class CatalogService {
 
     public Showtime showtime(long id) {
         return showtimeDAO.findById(id).orElseThrow(() -> new AppException(404, "Showtime not found."));
+    }
+
+    public Showtime adminShowtime(long id) {
+        return showtimeDAO.findAdminById(id).orElseThrow(() -> new AppException(404, "Showtime not found."));
+    }
+
+    public List<Showtime> adminShowtimes() {
+        return showtimeDAO.findAllAdmin();
+    }
+
+    public long createShowtime(Showtime showtime) {
+        movie(showtime.movieId());
+        return showtimeDAO.insert(showtime);
+    }
+
+    public void updateShowtime(Showtime showtime) {
+        movie(showtime.movieId());
+        showtimeDAO.update(showtime);
+    }
+
+    public void deleteShowtime(long id) {
+        showtimeDAO.delete(id);
     }
 
     public List<Movie> adminMovies(String query) {

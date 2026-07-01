@@ -103,7 +103,7 @@
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <c:forEach var="g" items="${allGenres}">
                             <label class="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
-                                <input type="checkbox" name="genreIds" value="${g.id}" class="rounded border-white/20 bg-black/40 text-rose-600 focus:ring-rose-500">
+                                <input type="checkbox" name="genreIds" value="${g.id}" ${selectedGenres.contains(g.name) || selectedGenres.contains(g.id) ? 'checked' : ''} class="rounded border-white/20 bg-black/40 text-rose-600 focus:ring-rose-500">
                                 <span><c:out value="${g.name}"/></span>
                             </label>
                         </c:forEach>
@@ -115,7 +115,7 @@
                     <div class="flex flex-wrap gap-6">
                         <c:forEach var="fmt" items="${allFormats}">
                             <label class="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
-                                <input type="checkbox" name="formats" value="${fmt}" class="rounded border-white/20 bg-black/40 text-rose-600 focus:ring-rose-500">
+                                <input type="checkbox" name="formats" value="${fmt}" ${selectedFormats.contains(fmt) ? 'checked' : ''} class="rounded border-white/20 bg-black/40 text-rose-600 focus:ring-rose-500">
                                 <span class="font-bold"><c:out value="${fmt.label}"/></span>
                             </label>
                         </c:forEach>
