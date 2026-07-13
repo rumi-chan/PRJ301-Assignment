@@ -166,11 +166,13 @@ SELECT COUNT(*) AS Combos FROM dbo.combos;
 
 SELECT COUNT(*) AS RealMovies
 FROM dbo.movies
-WHERE source_ref LIKE 'LOTTE-%';
+WHERE source_ref LIKE 'LOTTE-%'
+  AND is_active = 1;
 
 SELECT COUNT(*) AS RealDemoShowtimes
 FROM dbo.showtimes
-WHERE source_ref LIKE 'LOTTE-DEMO-%';
+WHERE source_ref LIKE 'LOTTE-DEMO-%'
+  AND status = 'SCHEDULED';
 GO
 ```
 
@@ -179,11 +181,11 @@ Expected development results after the real catalog import:
 ```text
 Movies:            59 or more
 Cinemas:            4
-Showtimes:         25 or more
+Showtimes:         43 or more
 Seats:            396
 Combos:             4
-RealMovies:        51
-RealDemoShowtimes: 12
+RealMovies:        52
+RealDemoShowtimes: 30
 ```
 
 Demo accounts use the password `password`:

@@ -337,11 +337,11 @@ src\main\resources\db\real-catalog-seed.sql
 
 The real catalog seed adds:
 
-- 51 Lotte movie records from `src\main\resources\data`
-- 51 Lotte movie records embedded in `real-catalog-seed.sql`
+- 52 Lotte movie records from `src\main\resources\data`
+- 52 Lotte movie records embedded in `real-catalog-seed.sql`
 - real titles, posters, release dates, countries, genres, and synopsis text
 - nullable runtimes for coming-soon movies that do not publish a runtime yet
-- demo showtimes for the 12 now-showing movies
+- 30 generated demo showtimes for the 10 now-showing movies
 - seat prices for those generated demo showtimes
 
 Verify the real import with:
@@ -352,19 +352,21 @@ GO
 
 SELECT COUNT(*) AS RealMovies
 FROM dbo.movies
-WHERE source_ref LIKE 'LOTTE-%';
+WHERE source_ref LIKE 'LOTTE-%'
+  AND is_active = 1;
 
 SELECT COUNT(*) AS RealDemoShowtimes
 FROM dbo.showtimes
-WHERE source_ref LIKE 'LOTTE-DEMO-%';
+WHERE source_ref LIKE 'LOTTE-DEMO-%'
+  AND status = 'SCHEDULED';
 GO
 ```
 
 Expected results:
 
 ```text
-RealMovies:        51
-RealDemoShowtimes: 12
+RealMovies:        52
+RealDemoShowtimes: 30
 ```
 
 If Vietnamese text looks broken in SSMS, close the query tab and reopen the SQL
@@ -606,8 +608,8 @@ sqlcmd -S localhost -E -C -d CineBook -b -f 65001 -i ".\src\main\resources\db\re
 ```
 
 The scripts are additive and may be run again in a development database. The
-real catalog script imports 51 Lotte movie records and creates 12 generated
-demo showtimes for now-showing movies.
+real catalog script imports 52 active Lotte movie records and creates 30
+scheduled generated demo showtimes for now-showing movies.
 
 ### 2. Configure the database connection
 
